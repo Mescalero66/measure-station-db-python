@@ -15,6 +15,7 @@ file's directory on ``sys.path`` directly, or it will shadow the standard librar
 from __future__ import annotations
 
 import os
+from typing import Any
 
 
 def _env(name: str, default: str | None = None) -> str | None:
@@ -69,6 +70,60 @@ INGEST_REFRESH_INTERVAL_S: int = 300
 INGEST_RETRY_S: int = 10
 # How often to log how much was stored.
 INGEST_STATS_INTERVAL_S: int = 60
+
+# --------------------------------------------------------------------------- #
+# Modbus TCP devices (docs/modbus-devices.md)
+# --------------------------------------------------------------------------- #
+# The Modbus poller reads each enabled device's registers on a timer, and publishes them
+# to the broker as an ordinary station message: each device is a "virtual station".
+# Off by default. To switch it on: set this to True, enable a device below, then
+# sudo systemctl restart measure-station-db-modbus
+MODBUS_ENABLED: bool = False
+# The poller's broker login. It may publish for any station (docs/modbus-devices.md).
+MODBUS_MQTT_USERNAME: str = _env("MODBUS_MQTT_USERNAME") or "measure-station-db-modbus"
+MODBUS_MQTT_PASSWORD: str | None = _env("MODBUS_MQTT_PASSWORD")
+# Readings held in memory while the broker can't be reached (sent when it's back).
+MODBUS_QUEUE_MAX: int = 10_000
+
+# One entry per device. Device options:
+#   enabled      True to read it.
+#   station      Its station ID in the database (letters, digits, '.', '_', '-').
+#   source       Its source name (same characters; not "status").
+#   sensor_type  Optional; what to record as the hardware. Default "modbus".
+#   host, port   Its IP address and Modbus TCP port (usually 502).
+#   unit         Its unit ID (slave ID), 0-255. Often 1; a gateway uses one per device.
+#   interval_s   How often to read it, in seconds.
+#   timeout_s    Optional; how long to wait for an answer. Default 3.
+#   max_gap      Optional; values up to this many registers apart are read in one request.
+#                Default 0 (only neighbouring registers). Raise it only if the device
+#                allows reading the registers in between.
+#   values       The values to read: a list of entries with these options:
+#     key        Its name in the database: <quantity>_<unit>, e.g. temperature_c.
+#     register   Its address as sent on the wire (0-based): "40011" in a manual is
+#                holding register 10.
+#     type       "holding" (function 3, the default), "input" (4), "coil" (1) or
+#                "discrete" (2). Coils and discrete inputs are published as true/false.
+#     format     Registers only: "uint16", "int16", "uint32", "int32" or "float32".
+#                32-bit values use two registers, high word first.
+#     scale      Registers only, optional: multiplied in, e.g. 0.1 when 214 means 21.4.
+#     section    Optional: "values" (the default; a measurement) or "meta" (a status
+#                flag or setting).
+MODBUS_DEVICES: list[dict[str, Any]] = [
+    # An example: a temperature and humidity sensor. Change it to match your device.
+    {
+        "enabled": False,
+        "station": "modbus-01",
+        "source": "environment",
+        "host": "192.168.1.23",
+        "port": 502,
+        "unit": 1,
+        "interval_s": 60,
+        "values": [
+            {"key": "temperature_c", "register": 10, "format": "int16", "scale": 0.1},
+            {"key": "humidity_pct", "register": 11, "format": "uint16", "scale": 0.1},
+        ],
+    },
+]
 
 # --------------------------------------------------------------------------- #
 # Station sources

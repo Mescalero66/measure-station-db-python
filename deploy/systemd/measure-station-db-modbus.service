@@ -1,0 +1,34 @@
+# Installed by deploy/install.sh (@APP_DIR@ and @APP_USER@ are substituted).
+[Unit]
+Description=Measure Station server: reads Modbus TCP devices and publishes them to the broker
+Documentation=file://@APP_DIR@/docs/modbus-devices.md
+Wants=network-online.target
+After=network-online.target mosquitto.service
+# Never give up restarting after a failure.
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=@APP_USER@
+Group=@APP_USER@
+WorkingDirectory=@APP_DIR@
+ExecStart=@APP_DIR@/.venv/bin/python -m measure_station_db.modbus
+EnvironmentFile=-/etc/measure-station-db/env
+Environment=PYTHONUNBUFFERED=1
+
+# Restart after a crash, but not after a clean exit: with Modbus switched off (the
+# default) or no device enabled, the poller logs that and exits, and stays stopped.
+Restart=on-failure
+RestartSec=5
+# Nor after a configuration error (EX_CONFIG), which needs a person.
+RestartPreventExitStatus=78
+TimeoutStopSec=30
+
+# Hardening.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

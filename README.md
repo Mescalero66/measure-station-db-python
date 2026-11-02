@@ -12,6 +12,8 @@ yet.
 
 - [Setting Up the Server Pi](docs/setting-up-the-server-pi.md): from an empty SSD to a
   Pi running the broker, database, Grafana and the TV display, step by step.
+- [Reading Modbus Devices](docs/modbus-devices.md): reading Modbus TCP devices on the
+  network as "virtual stations" (off until switched on).
 - [The Ingest Service](docs/ingest-service.md): installing the service that stores the
   readings, checking it, connecting the first station, and everyday tasks.
 - [Checking Messages From a Station](docs/checking-station-messages.md): checking on the
@@ -63,6 +65,7 @@ Everything between the stations and the phones runs on the server Pi.
 | **Grafana** | Draws the charts: sensor pickers, time ranges, several sensors on one graph, comparisons with averages | Off the shelf, with our dashboards kept as files in this repo |
 | **Remote app** | A small web app with two pages: the **TV page** (full screen, shows a Grafana dashboard) and the **remote page** (on a phone: buttons that choose what the TV shows) | Ours (Python) |
 | **Kiosk** | Chromium in full-screen mode on the TV, started at boot, with no desktop | Off the shelf, configured by us |
+| **Modbus poller** (optional, off by default) | Reads Modbus TCP devices on a timer and publishes their values to the broker as station messages, so each device is a "virtual station" | Ours (Python), with the Modbus client copied from `device-data-receiver` |
 | **Display service** (later) | Drives the LED display; the button cycles through values | Ours (Python) |
 
 Each of our programs is its own `systemd` service, so a fault in one (e.g. the display)
@@ -251,11 +254,17 @@ Not built now. Two routes stay open:
 - a Mosquitto *bridge*: a few lines of broker configuration that forward every message to
   a cloud MQTT broker as well.
 
-## Other Kinds of Device (Future)
+## Other Kinds of Device
 
-Any station that sends the Measure Station message format is stored with no change,
-whatever its sensors: new sources and keys become new series automatically. A device with
-its own MQTT format (e.g. Tasmota, ESPHome, Shelly, Zigbee2MQTT) needs a **translator**,
+**Modbus TCP devices** are read by the Modbus poller, which publishes each one as a
+"virtual station" in the station's own message format: see
+[Reading Modbus Devices](docs/modbus-devices.md). It's off until a device is configured.
+
+**Devices that publish MQTT in their own format** are for the future:
+
+any station that sends the Measure Station message format is stored with no change,
+whatever its sensors (new sources and keys become new series automatically), but a device
+with its own MQTT format (e.g. Tasmota, ESPHome, Shelly, Zigbee2MQTT) needs a **translator**,
 written once that device exists: a small function that turns its topic and payload into a
 station, source, time and values. Each translator also needs:
 
@@ -278,6 +287,8 @@ src/measure_station_db/
     ingest.py           the ingest service: MQTT to database
     schema.py           the database tables, applied by the ingest service
     watch.py            checker: shows and checks the messages arriving from stations
+    modbus.py           the Modbus poller: Modbus TCP devices as virtual stations
+    drivers/            code copied unchanged from other projects (the Modbus TCP client)
     remote/             the remote app: TV page and remote page
     display/            LED display and button (later)
 deploy/
@@ -314,7 +325,11 @@ can't contain hyphens). Python 3.11 or later. Main libraries: `paho-mqtt` 2.x, `
    notify someone away from home.
 6. **Backups,** once there's a location for them.
 7. **LED display and button.**
-8. **Later:** online storage, more stations, HDMI-CEC.
+8. **Later:** online storage, more stations, translators for other MQTT devices,
+   HDMI-CEC.
+
+Also written, outside the phases: the message checker, and the Modbus poller (off by
+default).
 
 ## Testing
 

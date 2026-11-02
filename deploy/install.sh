@@ -14,7 +14,9 @@ APP_USER=measure-station-db
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VENV_DIR="$APP_DIR/.venv"
 ETC_DIR="/etc/$APP_NAME"
-SERVICES=(measure-station-db-ingest)
+# The Modbus poller is installed and enabled too, but exits at once while
+# MODBUS_ENABLED is False in sysconfig.py (docs/modbus-devices.md).
+SERVICES=(measure-station-db-ingest measure-station-db-modbus)
 
 log() { printf '\n==> %s\n' "$*"; }
 
@@ -67,4 +69,6 @@ Next steps (the first time):
   2. Start the service:    sudo systemctl start measure-station-db-ingest
   3. Check it:             systemctl status measure-station-db-ingest
      Follow its log:       journalctl -u measure-station-db-ingest -f
+
+Modbus devices are off until switched on: see docs/modbus-devices.md.
 EOF
