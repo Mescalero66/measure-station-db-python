@@ -4,13 +4,20 @@ The server for [Measure Station](https://github.com/Mescalero66/measure-station-
 a Raspberry Pi that receives readings from one or more stations over MQTT, stores them in
 a database on a USB SSD, and presents them on a TV and on phones on the local network.
 
-**Status: planning.** This README is the design plan. The Pi setup guide is written; none
-of the server's own programs are built yet.
+**Status: building.** This README is the design plan. Written so far: the Pi setup
+guide, the ingest service and the message checker. None of it has run on the real Pi
+yet.
 
 ## Documentation
 
 - [Setting Up the Server Pi](docs/setting-up-the-server-pi.md): from an empty SSD to a
   Pi running the broker, database, Grafana and the TV display, step by step.
+- [The Ingest Service](docs/ingest-service.md): installing the service that stores the
+  readings, checking it, connecting the first station, and everyday tasks.
+- [Checking Messages From a Station](docs/checking-station-messages.md): checking on the
+  server Pi that a station's readings arrive, complete and in the right form.
+- [Development](docs/development.md): setting up a development copy, running the tests
+  and checks, and the database tests on the Pi.
 
 ## Goals
 
@@ -151,22 +158,29 @@ knows about. The ingest service must connect at least once **before** a station 
 pointed at the broker; otherwise the station's backlog is acknowledged and then thrown
 away.
 
-## Database Design (Draft)
+## Database Design
 
 | Table | Contents | Notes |
 |---|---|---|
-| `reading` | One row per message: `station`, `source`, `ts`, `sensor_type`, `ts_src`, `values_json`, `meta_json`, `received_at` | The interface's suggested schema. Primary key `(station, source, ts)`. **The source of truth:** everything else can be rebuilt from it |
-| `reading_value` | One row per value: `station`, `source`, `section`, `key`, `ts`, `ts_src`, `num_value`, `text_value` | Written in the same transaction as `reading`. Easy to chart. Primary key `(station, source, section, key, ts)` |
-| `value_hourly`, `value_daily` | Average, minimum, maximum and count per series per hour and per day | TimescaleDB continuous aggregates over `reading_value`. They feed the "compared with weekly/monthly average" charts |
-| `station_status` | Each `online`/`offline` change, with its time of arrival | From the retained `status` topic |
+| `reading` | One row per message: `station`, `source`, `ts`, `sensor_type`, `ts_src`, `values_json`, `meta_json`, `boot_id`, `boot_ts`, `received_at` | The interface's suggested schema. Primary key `(station, source, ts)`. **The source of truth:** everything else can be rebuilt from it |
+| `reading_value` | One row per value in `values` and `meta`: `station`, `source`, `section`, `key`, `ts`, `ts_src`, `num_value`, `text_value` | Written in the same transaction as `reading`. Easy to chart. Numbers and booleans (1 or 0) in `num_value`; text (and the one list, `mqboard_stale_sensors`, as JSON) in `text_value`. Primary key `(station, source, section, key, ts)` |
+| `value_hourly`, `value_daily` | Average, minimum, maximum and count per numeric series per hour and per UTC day | TimescaleDB continuous aggregates over `reading_value`, leaving out `estimated` timestamps. They feed the "compared with weekly/monthly average" charts |
+| `station_status` | Each `online`/`offline` change, with the time the server stored it | From the retained `status` topic. Only changes are stored, since the broker resends it at every reconnect |
 
-- `reading` and `reading_value` are TimescaleDB hypertables: tables split into chunks by
-  time, which makes time-range queries fast and lets old chunks be compressed.
+- The schema is in `src/measure_station_db/schema.py`. The ingest service applies it at
+  every start, so every statement is safe to repeat.
+- `reading` and `reading_value` are TimescaleDB hypertables: tables split into 7-day
+  chunks by time, which makes time-range queries fast and lets old chunks be compressed.
+- **Data is kept forever.**
 - **Compression starts after about 4 months.** That's longer than the station's longest
   backlog (about 3 months), so late data never lands in a compressed chunk.
-- **Late data:** the aggregates refresh themselves for recent time. When the ingest
-  service stores readings older than that window (after an outage), it asks for those
-  older periods to be refreshed too.
+- **Late data:** the aggregates refresh themselves for the last 3 days (hourly) and 7
+  days (daily). When the ingest service stores readings more than 2 days old (after an
+  outage), it has their whole days refreshed, at most every 5 minutes while they keep
+  arriving.
+- **Averages include every non-`estimated` reading,** whatever its quality flags (e.g.
+  `air-quality` during `warmup`). Dashboards that must exclude flagged readings query
+  `reading_value` instead.
 - **Quality:** `ts_src` and the `meta` flags are stored with the data. Dashboards hide
   `estimated` timestamps and readings flagged as untrustworthy by default (e.g.
   `air-quality` while `validity` isn't `"normal"`).
@@ -174,7 +188,7 @@ away.
   (from its key's suffix) and a role (primary, secondary or meta, from the interface's
   "Best Source for Each Quantity" table). A series that isn't in the catalogue, such as
   one from a new station's sensor, is still stored and shown under its raw name.
-- **Volume:** about 16,400 messages and roughly 60,000 values a day per station: a few GB
+- **Volume:** about 16,400 messages and roughly 77,000 values a day per station: a few GB
   a year before compression.
 
 ## Presentation
@@ -236,16 +250,20 @@ Not built now. Two routes stay open:
 ```text
 src/measure_station_db/
     sysconfig.py        all settings (secrets from MEASURE_STATION_DB_* environment variables)
-    ingest/             MQTT to database
+    logging_setup.py    logging to the journal, shared by every program
+    messages.py         parsing and checking station messages (shared)
+    ingest.py           the ingest service: MQTT to database
+    schema.py           the database tables, applied by the ingest service
+    watch.py            checker: shows and checks the messages arriving from stations
     remote/             the remote app: TV page and remote page
     display/            LED display and button (later)
 deploy/
-    install.sh          installs the server's own programs
-    postgres/           schema and TimescaleDB policies
-    grafana/            dashboards, as provisioning files
+    install.sh          installs or updates the server's own programs
+    env.example         template for /etc/measure-station-db/env (the passwords)
+    grafana/            dashboards, as provisioning files (phase 3)
     systemd/            one unit per service
 docs/                   one page per topic: Pi setup, operating, development
-tests/                  fixtures taken from the interface's examples
+tests/                  tests; fixtures/ holds the station's documented example messages
 ```
 
 The third-party services (Mosquitto, PostgreSQL + TimescaleDB, Grafana, the TV kiosk)
@@ -263,9 +281,10 @@ can't contain hyphens). Python 3.11 or later. Main libraries: `paho-mqtt` 2.x, `
    Raspberry Pi OS Lite 64-bit, fixed IP, NTP, Mosquitto with persistence and logins,
    PostgreSQL + TimescaleDB with the database and its logins, Grafana connected to the
    database, and the TV kiosk showing Grafana.
-2. **Database and ingest service:** schema, hypertables, batching with acknowledgement
-   after commit, de-duplication, status, tests. Then the station is pointed at the
-   server, and its backlog drains.
+2. **Database and ingest service** ([written](docs/ingest-service.md), not yet run on
+   the Pi): schema, hypertables, batching with acknowledgement after commit,
+   de-duplication, status, tests, installer. Then the station is pointed at the server,
+   and its backlog drains.
 3. **Grafana:** the averages, and the first dashboards for phones.
 4. **TV:** TV page, remote page and presets (the kiosk then shows the TV page).
 5. **Revisit alerts** (deferred; see [Alerts](#alerts-deferred)), including whether to

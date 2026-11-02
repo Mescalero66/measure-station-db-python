@@ -469,9 +469,9 @@ Stop the listener in the first terminal with **Ctrl+C**, and close the second te
 These test messages aren't stored anywhere.
 
 **Don't connect a station yet.** The broker only keeps messages for a listener it already
-knows about. Until the ingest service has connected once (the next phase of the build),
-the broker would give the station receipts for its readings and then throw them away. The
-station keeps its readings safely until then. See [What Comes Next](#what-comes-next).
+knows about. Until the ingest service has connected once, the broker would give the
+station receipts for its readings and then throw them away. The station keeps its
+readings safely until then. See [What Comes Next](#what-comes-next).
 
 ## Step 7: Install the Database (PostgreSQL + TimescaleDB)
 
@@ -860,11 +860,12 @@ itself: the TV shows Grafana, and the three services are running.
 
 ## What Comes Next
 
-The next phase of the build installs the **ingest service**, which creates the database
-tables and moves readings from the broker into the database. It uses the logins
-`measure-station-db` (broker) and `ingest` (database).
+Next, install the **ingest service**, which creates the database tables and moves
+readings from the broker into the database: follow [The Ingest Service](ingest-service.md).
+It uses the logins `measure-station-db` (broker) and `ingest` (database).
 
-**Only after the ingest service has run once,** connect each station by following the
+**Only after the ingest service is running,** connect each station (the ingest guide's
+[Step 6](ingest-service.md#step-6-connect-the-station) walks through it), following the
 station's guide,
 [Step 7: Connect to the Server Pi](https://github.com/Mescalero66/measure-station-python/blob/main/docs/deploying-the-station.md#step-7-connect-to-the-server-pi-later),
 with:
@@ -875,6 +876,9 @@ with:
 | `MEASURE_STATION_MQTT_PORT` | `1883` |
 | `MEASURE_STATION_MQTT_USERNAME` | The station's ID, e.g. `mstn-2b` |
 | `MEASURE_STATION_MQTT_PASSWORD` | The station's broker password from Step 6 |
+
+To check that a station's readings arrive, and are in the right form, see
+[Checking Messages From a Station](checking-station-messages.md).
 
 **Adding another station later:** give it a broker login with its station ID as the
 username (Step 6, [Logins](#logins), including the `chown` and `chmod` commands), then

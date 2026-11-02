@@ -1,0 +1,37 @@
+# Installed by deploy/install.sh (@APP_DIR@ and @APP_USER@ are substituted).
+[Unit]
+Description=Measure Station server: stores readings from the MQTT broker in the database
+Documentation=file://@APP_DIR@/docs/ingest-service.md
+# The service waits for the broker and the database itself (and retries); starting after
+# them just avoids error messages at boot.
+Wants=network-online.target
+After=network-online.target mosquitto.service postgresql.service
+# Never give up restarting.
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=@APP_USER@
+Group=@APP_USER@
+WorkingDirectory=@APP_DIR@
+ExecStart=@APP_DIR@/.venv/bin/python -m measure_station_db.ingest
+EnvironmentFile=-/etc/measure-station-db/env
+Environment=PYTHONUNBUFFERED=1
+
+# Restart on any exit or crash...
+Restart=always
+RestartSec=5
+# ...except a configuration error (EX_CONFIG), which needs a person.
+RestartPreventExitStatus=78
+# A clean stop first stores and acknowledges what's already received, and may
+# recalculate averages after a backlog.
+TimeoutStopSec=60
+
+# Hardening.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

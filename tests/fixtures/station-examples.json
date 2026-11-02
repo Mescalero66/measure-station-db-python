@@ -1,0 +1,52 @@
+{
+  "co2": {
+    "from": "docs/server-pi-interface.md",
+    "topic": "measure-station/mstn-2b/co2",
+    "payload": "{\"station\":\"mstn-2b\",\"source\":\"co2\",\"sensor_type\":\"scd41\",\"ts\":\"2026-10-21T09:40:02.517+00:00\",\"ts_src\":\"ntp\",\"values\":{\"co2_ppm\":500,\"temperature_c\":25.0,\"humidity_pct\":37.0},\"meta\":{\"pressure_hpa\":1007,\"comp_src\":\"hpa\"}}"
+  },
+  "health": {
+    "from": "docs/server-pi-interface.md",
+    "topic": "measure-station/mstn-2b/health",
+    "payload": "{\"station\":\"mstn-2b\",\"source\":\"health\",\"sensor_type\":\"station\",\"ts\":\"2026-10-22T08:00:03.164+00:00\",\"ts_src\":\"ntp\",\"values\":{\"uptime_s\":86400,\"outbox_backlog\":3,\"queue_depth\":0,\"task_restarts\":0,\"clock_synced\":true,\"awaiting_time_sync\":0,\"load_1m\":0.42,\"disk_free_mb\":11234.5,\"mem_available_mb\":702.3,\"mqboard_up\":true,\"mqboard_last_line_age_s\":1.8,\"mqboard_bad_lines\":0,\"mqboard_stale_sensors\":[],\"mqboard_held\":0}}"
+  },
+  "air-quality": {
+    "from": "docs/sensors/air-quality-board.md",
+    "topic": "measure-station/pi-01/air-quality",
+    "payload": "{\"station\":\"pi-01\",\"source\":\"air-quality\",\"sensor_type\":\"ens160_aht21\",\"ts\":\"2026-10-21T09:40:00.000+00:00\",\"ts_src\":\"ntp\",\"values\":{\"aqi\":2,\"tvoc_ppb\":145,\"eco2_ppm\":612},\"meta\":{\"validity\":\"normal\",\"temperature_c\":27.84,\"humidity_pct\":38.2}}"
+  },
+  "humidity": {
+    "from": "docs/sensors/humidity-sensor.md",
+    "topic": "measure-station/pi-01/humidity",
+    "payload": "{\"station\":\"pi-01\",\"source\":\"humidity\",\"sensor_type\":\"cht8305\",\"ts\":\"2026-10-22T09:40:00.000+00:00\",\"ts_src\":\"ntp\",\"values\":{\"temperature_c\":18.41,\"humidity_pct\":61.3}}"
+  },
+  "light": {
+    "from": "docs/sensors/light-sensor.md",
+    "topic": "measure-station/pi-01/light",
+    "payload": "{\"station\":\"pi-01\",\"source\":\"light\",\"sensor_type\":\"bh1750\",\"ts\":\"2026-10-21T09:40:00.000+00:00\",\"ts_src\":\"ntp\",\"values\":{\"illuminance_lux\":166.64},\"meta\":{\"range\":\"lo\"}}"
+  },
+  "mqboard-mq4": {
+    "from": "docs/sensors/mq-gas-board.md",
+    "topic": "measure-station/pi-01/mqboard-mq4",
+    "payload": "{\"station\":\"pi-01\",\"source\":\"mqboard-mq4\",\"sensor_type\":\"mq_board\",\"ts\":\"2026-10-13T09:40:01.000+00:00\",\"ts_src\":\"ntp\",\"values\":{\"concentration_ppm\":17.85},\"meta\":{\"gas\":\"CH4\",\"temperature_c\":23.19,\"baseline_tracking\":true,\"r0_kohm\":5.401877,\"ts_basis\":\"board\"}}"
+  },
+  "particulates-sen62": {
+    "from": "docs/sensors/particulate-sensor.md",
+    "topic": "measure-station/pi-01/particulates",
+    "payload": "{\"station\":\"pi-01\",\"source\":\"particulates\",\"sensor_type\":\"sen62\",\"ts\":\"2026-10-22T10:30:03.580+00:00\",\"ts_src\":\"ntp\",\"values\":{\"pm1_ugm3\":3.2,\"pm25_ugm3\":4.1,\"pm4_ugm3\":4.6,\"pm10_ugm3\":4.9,\"temperature_c\":18.42,\"humidity_pct\":61.3}}"
+  },
+  "particulates-sen65": {
+    "from": "docs/sensors/particulate-sensor.md",
+    "topic": "measure-station/pi-01/particulates",
+    "payload": "{\"station\":\"pi-01\",\"source\":\"particulates\",\"sensor_type\":\"sen65\",\"ts\":\"2026-10-22T10:30:03.580+00:00\",\"ts_src\":\"ntp\",\"values\":{\"pm1_ugm3\":3.2,\"pm25_ugm3\":4.1,\"pm4_ugm3\":4.6,\"pm10_ugm3\":4.9,\"temperature_c\":18.42,\"humidity_pct\":61.3,\"voc_index\":112,\"nox_index\":4},\"meta\":{\"voc\":\"warmup\",\"nox\":\"warmup\"}}"
+  },
+  "barometer": {
+    "from": "docs/sensors/pressure-sensor.md",
+    "topic": "measure-station/pi-01/barometer",
+    "payload": "{\"station\":\"pi-01\",\"source\":\"barometer\",\"sensor_type\":\"bmp280\",\"ts\":\"2026-10-21T09:40:00.000+00:00\",\"ts_src\":\"ntp\",\"values\":{\"pressure_hpa\":1006.53},\"meta\":{\"temperature_c\":25.08}}"
+  },
+  "temperature": {
+    "from": "docs/sensors/temperature-sensor.md",
+    "topic": "measure-station/pi-01/temperature",
+    "payload": "{\"station\":\"pi-01\",\"source\":\"temperature\",\"sensor_type\":\"mcp9808\",\"ts\":\"2026-10-22T09:40:00.000+00:00\",\"ts_src\":\"ntp\",\"values\":{\"temperature_c\":22.4375}}"
+  }
+}
