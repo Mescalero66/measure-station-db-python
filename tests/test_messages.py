@@ -49,7 +49,8 @@ def test_problems_are_reported():
         "not a JSON object": (TOPIC, b"[1, 2]"),
         "doesn't match the topic": ("measure-station/mstn-2b/light", _payload()),
         "'values' is missing": (TOPIC, _payload(values=None)),
-        "isn't in the form": (TOPIC, _payload(ts="2026-10-21T09:40:02Z")),
+        "isn't an ISO 8601 time with a time zone": (TOPIC, _payload(ts="21/10/2026 09:40")),
+        "with a time zone, e.g.": (TOPIC, _payload(ts="2026-10-21T09:40:02.517")),
         "isn't ntp, corrected or estimated": (TOPIC, _payload(ts_src="gps")),
         "without 'boot_id' and 'boot_ts'": (TOPIC, _payload(ts_src="estimated")),
         "'meta' is not an object": (TOPIC, _payload(meta=[1])),
@@ -63,6 +64,19 @@ def test_problems_are_reported():
 def test_estimated_with_boot_fields_is_fine():
     payload = _payload(ts_src="estimated", boot_id="b0a7", boot_ts=12.345)
     assert check(TOPIC, payload, BASE).problems == []
+
+
+def test_other_iso_8601_times_are_accepted_as_utc():
+    moment = datetime(2026, 10, 21, 9, 40, 2, tzinfo=UTC)
+    for ts in (
+        "2026-10-21T09:40:02Z",
+        "2026-10-21T09:40:02+00:00",
+        "2026-10-21T09:40:02.000Z",
+        "2026-10-21T19:40:02+10:00",
+    ):
+        msg = check(TOPIC, _payload(ts=ts), BASE)
+        assert msg.problems == [], ts
+        assert msg.ts == moment and msg.ts.utcoffset().total_seconds() == 0, ts
 
 
 def test_fields_are_parsed():

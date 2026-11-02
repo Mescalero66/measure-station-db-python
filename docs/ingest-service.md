@@ -38,8 +38,11 @@ Contents:
   second copy.
 - **It saves in batches**, up to 500 readings at once, or whatever has arrived after a
   second. That's quick, and kind to the SSD.
-- **It skips broken messages.** A message that doesn't follow the station's interface is
-  logged and confirmed, so it can't block the ones behind it.
+- **It sets aside messages that don't fit.** A message that doesn't follow the station's
+  interface (for example, from a different kind of device) is kept exactly as received
+  in a separate table, logged and confirmed, so it can't block the ones behind it.
+  Nothing is thrown away: if a new kind of device is added later, its messages can still
+  be translated and stored properly.
 - **It keeps the averages right.** The database keeps hourly and daily averages up to
   date by itself, but only for the last few days. When older readings arrive (a
   station's backlog after an outage), the service has the averages for those days
@@ -126,7 +129,8 @@ the service whenever it's stopped. If you see something else, see
 
 This proves, before any real data is at stake, that messages sent while the service is
 stopped are delivered when it starts again. The test message is deliberately not a
-valid reading, so it's logged but never stored.
+valid reading, so it's set aside rather than stored as a reading (you delete it
+afterwards).
 
 1. Stop the service:
 
@@ -152,13 +156,21 @@ valid reading, so it's logged but never stored.
 
    ```text
    INFO [measure_station_db.ingest] Connected to the broker at localhost:1883, resuming its saved session
-   WARNING [measure_station_db.ingest] Ignored a message on measure-station/mstn-2b/test: not valid JSON
+   WARNING [measure_station_db.ingest] Set aside a message on measure-station/mstn-2b/test in rejected_message: not valid JSON
    ```
 
-   **resuming its saved session** and the **Ignored a message** line together show that
-   the broker kept the message while the service was stopped, and delivered it. If you
-   see **a new session** instead, stop: the broker isn't keeping messages, and
+   **resuming its saved session** and the **Set aside a message** line together show
+   that the broker kept the message while the service was stopped, and delivered it. If
+   you see **a new session** instead, stop: the broker isn't keeping messages, and
    connecting a station would lose data. See [Troubleshooting](#troubleshooting).
+
+4. Delete the test message from the set-aside messages:
+
+   ```bash
+   sudo -u postgres psql -d measure_station_db -c "DELETE FROM rejected_message WHERE topic = 'measure-station/mstn-2b/test';"
+   ```
+
+   It prints `DELETE 1`.
 
 ## Step 6: Connect the Station
 
@@ -188,7 +200,7 @@ Now the station can send its stored readings safely.
    ```
 
    ```text
-   INFO [measure_station_db.ingest] Stored 61204 readings and 1 status messages; ignored 0 invalid
+   INFO [measure_station_db.ingest] Stored 61204 readings and 1 status messages; set aside 0 that didn't fit
    ```
 
    A backlog of several months takes some minutes. When it's done, the count settles at
@@ -225,6 +237,7 @@ automatically, which makes them several times smaller.
 | `reading_value` | The same readings split into one row per value (e.g. `co2_ppm`), with its section (`values` or `meta`). Numbers and true/false (as 1 or 0) are in `num_value`; text in `text_value`. Charts use this |
 | `station_status` | Each time a station went `online` or `offline`, by the server's clock |
 | `value_hourly`, `value_daily` | The average, minimum, maximum and number of readings of every numeric value, per hour and per day (UTC). Readings with an `estimated` time are left out, because their time can be far out |
+| `rejected_message` | Every message that didn't follow the station's interface, exactly as received, with the time and what was wrong. Normally empty |
 
 ## Everyday Tasks
 
@@ -239,6 +252,7 @@ Connect with `ssh` first.
 | Stop it (the broker keeps readings meanwhile) | `sudo systemctl stop measure-station-db-ingest` |
 | Start it again | `sudo systemctl start measure-station-db-ingest` |
 | Readings stored today | `sudo -u postgres psql -d measure_station_db -c "SELECT count(*) FROM reading WHERE ts >= current_date;"` |
+| Messages set aside (normally none) | `sudo -u postgres psql -d measure_station_db -c "SELECT received_at, topic, problems FROM rejected_message ORDER BY received_at DESC LIMIT 20;"` |
 | Database size | `sudo -u postgres psql -d measure_station_db -c "SELECT pg_size_pretty(pg_database_size('measure_station_db'));"` |
 
 Don't leave it stopped for long while a station is connected: the broker keeps the
@@ -268,6 +282,6 @@ that arrive meanwhile.
 | `The broker refused the connection: Not authorized` | The broker password in the env file doesn't match the one set for `measure-station-db` with `mosquitto_passwd`. Correct one of them, then restart the service |
 | `Lost the connection to the broker` | Mosquitto stopped or restarted. The service reconnects by itself, and nothing is lost |
 | `Can't store N message(s)`, repeating | The database has a problem. The broker keeps the readings meanwhile. Check PostgreSQL's log: `sudo journalctl -u postgresql@17-main -n 50` |
-| `Ignored a message on …` | A message that doesn't follow the station's interface. It's skipped. If real readings are being ignored, send the line to the developer |
+| `Set aside a message on …` | A message that doesn't follow the station's interface. It's kept in `rejected_message` (see [Everyday Tasks](#everyday-tasks)), not lost. If a station's real readings are being set aside, send the line to the developer. Messages from a new kind of device are expected here until the server is taught its format |
 | `a new session (the broker had kept nothing for it)` after the first start | The broker had forgotten the service. It only forgets if its saved data was lost, e.g. `persistence` isn't on (setup guide, Step 6). Readings sent while the service was stopped may be lost: check the broker's settings |
 | The averages are missing some days after a backlog | Recalculate them all: `sudo -u postgres psql -d measure_station_db -c "CALL refresh_continuous_aggregate('value_hourly', NULL, NULL);"`, then the same with `value_daily`. It can take a few minutes |

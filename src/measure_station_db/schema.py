@@ -14,6 +14,11 @@ Tables:
     value_hourly,    average, minimum, maximum and count of each numeric series per hour
     value_daily:     and per (UTC) day. TimescaleDB keeps them up to date. Readings with
                      an ``estimated`` time are left out: their time can be weeks wrong.
+    rejected_message: every message that didn't fit the station's interface, exactly as
+                     received, with what was wrong. Nothing the broker delivered is lost:
+                     when a new kind of device appears, its messages can be translated
+                     and stored properly later. No primary key: a resent copy is kept
+                     twice, which is harmless here.
 
 The aggregates' automatic refresh only looks back a few days (START_OFFSET below). The
 ingest service refreshes older periods itself when late readings arrive
@@ -110,6 +115,14 @@ STATEMENTS: list[str] = [
         received_at TIMESTAMPTZ NOT NULL,
         status      TEXT        NOT NULL,
         PRIMARY KEY (station, received_at)
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS rejected_message (
+        received_at TIMESTAMPTZ NOT NULL,
+        topic       TEXT        NOT NULL,
+        payload     BYTEA       NOT NULL,
+        problems    TEXT        NOT NULL
     )
     """,
     _aggregate("value_hourly", "1 hour"),

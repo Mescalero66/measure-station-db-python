@@ -148,8 +148,13 @@ server is responsible for it.
   transaction, and only then acknowledges every message in it, in the order they
   arrived (MQTT requires that order).
 - Duplicates are ignored by the primary key (`ON CONFLICT DO NOTHING`).
-- Invalid JSON, or a payload whose `station` or `source` doesn't match its topic: logged
-  and acknowledged, so it can't block the queue.
+- A message that doesn't fit the interface (invalid JSON, a payload whose `station` or
+  `source` doesn't match its topic, a missing field): kept exactly as received in
+  `rejected_message`, logged and acknowledged, so it can't block the queue and nothing
+  is lost.
+- Times are accepted in any ISO 8601 form with a time zone (e.g. `Z`, no milliseconds)
+  and stored as UTC. The station always sends `…T09:40:00.000+00:00`; other devices may
+  not.
 - Unknown sources and keys are stored like any other.
 - `status` messages (plain text `online` or `offline`) go to their own table.
 
@@ -165,6 +170,7 @@ away.
 | `reading` | One row per message: `station`, `source`, `ts`, `sensor_type`, `ts_src`, `values_json`, `meta_json`, `boot_id`, `boot_ts`, `received_at` | The interface's suggested schema. Primary key `(station, source, ts)`. **The source of truth:** everything else can be rebuilt from it |
 | `reading_value` | One row per value in `values` and `meta`: `station`, `source`, `section`, `key`, `ts`, `ts_src`, `num_value`, `text_value` | Written in the same transaction as `reading`. Easy to chart. Numbers and booleans (1 or 0) in `num_value`; text (and the one list, `mqboard_stale_sensors`, as JSON) in `text_value`. Primary key `(station, source, section, key, ts)` |
 | `value_hourly`, `value_daily` | Average, minimum, maximum and count per numeric series per hour and per UTC day | TimescaleDB continuous aggregates over `reading_value`, leaving out `estimated` timestamps. They feed the "compared with weekly/monthly average" charts |
+| `rejected_message` | Every message that didn't fit the interface: `received_at`, `topic`, the raw `payload` (bytes) and its `problems` | Nothing the broker delivered is lost. When a new kind of device appears, a translator for its format can be added and its earlier messages stored properly |
 | `station_status` | Each `online`/`offline` change, with the time the server stored it | From the retained `status` topic. Only changes are stored, since the broker resends it at every reconnect |
 
 - The schema is in `src/measure_station_db/schema.py`. The ingest service applies it at
@@ -244,6 +250,23 @@ Not built now. Two routes stay open:
   provider) with PostgreSQL's built-in replication, or a periodic sync job;
 - a Mosquitto *bridge*: a few lines of broker configuration that forward every message to
   a cloud MQTT broker as well.
+
+## Other Kinds of Device (Future)
+
+Any station that sends the Measure Station message format is stored with no change,
+whatever its sensors: new sources and keys become new series automatically. A device with
+its own MQTT format (e.g. Tasmota, ESPHome, Shelly, Zigbee2MQTT) needs a **translator**,
+written once that device exists: a small function that turns its topic and payload into a
+station, source, time and values. Each translator also needs:
+
+- a subscription to the device's topics, and an access-list line letting it publish them;
+- a rule for devices that send no time: use the time of arrival, marked as such (as the
+  MQ board does with `ts_basis: "receipt"`).
+
+Until then, nothing is lost: a message that doesn't fit is kept in `rejected_message`,
+and can be translated and stored once its translator is written. (Messages on topics the
+service doesn't subscribe to never reach it, so a new device must be added to the
+subscription before its data is kept.)
 
 ## Proposed Project Layout
 

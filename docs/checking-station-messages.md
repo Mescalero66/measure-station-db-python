@@ -145,15 +145,17 @@ the station (e.g. a sensor that isn't fitted), or it has failed: see
 ## What the Problems Mean
 
 A message with a problem is shown as `PROBLEM:` instead of its values, and counted in the
-summary. Problems mean the message doesn't follow the station's interface, which the
-ingest service relies on. Note the exact line and tell the developer.
+summary. Problems mean the message doesn't follow the station's interface. The ingest
+service doesn't store such a message as a reading: it keeps it as received, in the
+`rejected_message` table, so nothing is lost. Note the exact line and tell the
+developer.
 
 | Problem | Meaning |
 |---|---|
 | `not valid JSON` | The contents aren't readable data. Something other than the station software may be publishing |
 | `the payload's station or source doesn't match the topic` | The message says it's from a different station or sensor than its topic does |
 | `'…' is missing or not a …` | A field the interface requires is missing or the wrong type |
-| `'ts' … isn't in the form …` | The reading's time isn't written the way the interface specifies |
+| `'ts' … isn't an ISO 8601 time with a time zone …` | The reading's time can't be understood, or has no time zone, so the moment it means is unknown. (Any standard form with a zone is accepted, e.g. ending in `Z` or `+10:00`, with or without milliseconds) |
 | `taken in the future: the station's and the server's clocks disagree` | The reading's time is ahead of the server's clock. The two Pis aren't using the same time source, or one hasn't set its clock. See the setup guide's [Step 5](setting-up-the-server-pi.md#step-5-set-the-time-source) and the station's time server setting |
 | `status is …, not 'online' or 'offline'` | Something other than the station is publishing on its `status` topic |
 | `unexpected topic …` | A message on a topic that isn't `measure-station/<station>/<source>` |

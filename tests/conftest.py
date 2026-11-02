@@ -47,7 +47,7 @@ def station_examples() -> dict[str, StationExample]:
 # Removes everything the schema creates, so each database test starts empty.
 _DROP = [
     "DROP MATERIALIZED VIEW IF EXISTS value_hourly, value_daily CASCADE",
-    "DROP TABLE IF EXISTS reading, reading_value, station_status CASCADE",
+    "DROP TABLE IF EXISTS reading, reading_value, station_status, rejected_message CASCADE",
 ]
 
 

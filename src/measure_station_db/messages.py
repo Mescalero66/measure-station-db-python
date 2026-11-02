@@ -10,13 +10,12 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 STATUS_SOURCE = "status"
 
 _ID = re.compile(r"^[A-Za-z0-9_.-]+$")
-_TS = re.compile(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}\+00:00$")
 _REQUIRED: dict[str, type] = {
     "station": str,
     "source": str,
@@ -32,8 +31,8 @@ _TS_SRC = {"ntp", "corrected", "estimated"}
 class Message:
     """One received message, and anything wrong with it.
 
-    A message with problems must not be stored. A status message (source ``status``) has
-    only ``status`` set.
+    A message with problems is kept only as received, in the rejected_message table. A
+    status message (source ``status``) has only ``status`` set.
     """
 
     station: str | None
@@ -52,6 +51,23 @@ class Message:
     @property
     def is_status(self) -> bool:
         return self.source == STATUS_SOURCE
+
+
+def parse_ts(text: str) -> datetime | None:
+    """A capture time as an aware UTC datetime, or None if it isn't one.
+
+    The station always sends 2026-10-21T09:40:00.000+00:00, but any ISO 8601 time with a
+    time zone is accepted (e.g. ...Z, or no milliseconds), so other devices' messages fit.
+    Duplicates are still caught: the database compares moments, not text. A time without
+    a zone is refused: the moment it means is unknown.
+    """
+    try:
+        ts = datetime.fromisoformat(text)
+    except ValueError:
+        return None
+    if ts.tzinfo is None:
+        return None
+    return ts.astimezone(UTC)
 
 
 def check(topic: str, payload: bytes, base_topic: str) -> Message:
@@ -96,10 +112,12 @@ def check(topic: str, payload: bytes, base_topic: str) -> Message:
 
     ts = data.get("ts")
     if isinstance(ts, str):
-        if _TS.match(ts):
-            msg.ts = datetime.fromisoformat(ts)
-        else:
-            msg.problems.append(f"'ts' {ts!r} isn't in the form 2026-10-21T09:40:00.000+00:00")
+        msg.ts = parse_ts(ts)
+        if msg.ts is None:
+            msg.problems.append(
+                f"'ts' {ts!r} isn't an ISO 8601 time with a time zone, "
+                "e.g. 2026-10-21T09:40:00.000+00:00"
+            )
 
     ts_src = data.get("ts_src")
     if isinstance(ts_src, str):

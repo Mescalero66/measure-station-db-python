@@ -56,12 +56,12 @@ def reading(mid: int, *, age: timedelta = timedelta(seconds=2), generation: int 
         "values": {"co2_ppm": 500},
     }
     topic = "measure-station/mstn-2b/co2"
-    msg = check(topic, json.dumps(payload).encode(), BASE)
-    return Delivery(mid, qos, generation, topic, NOW, msg)
+    raw_payload = json.dumps(payload).encode()
+    return Delivery(mid, qos, generation, topic, NOW, check(topic, raw_payload, BASE), raw_payload)
 
 
 def raw(mid: int, topic: str, payload: bytes) -> Delivery:
-    return Delivery(mid, 1, 1, topic, NOW, check(topic, payload, BASE))
+    return Delivery(mid, 1, 1, topic, NOW, check(topic, payload, BASE), payload)
 
 
 def test_value_columns():
@@ -126,15 +126,18 @@ def test_nothing_is_acknowledged_when_the_write_fails(ingester, events):
     assert events == [("write", [1, 2, 3]), ("ack", 1), ("ack", 2), ("ack", 3)]
 
 
-def test_invalid_messages_are_acknowledged_in_order(ingester, events, caplog):
+def test_rejected_messages_are_acknowledged_in_order(ingester, events, caplog):
     ingester.add(reading(1), now=0.0)
     ingester.add(raw(2, "measure-station/mstn-2b/light", b"{broken"), now=0.0)
     ingester.add(reading(3), now=0.0)
     ingester.flush(generation=1)
     assert events[1:] == [("ack", 1), ("ack", 2), ("ack", 3)]
-    assert "Ignored a message on measure-station/mstn-2b/light: not valid JSON" in caplog.text
-    assert ingester.take_counts() == {"readings": 2, "statuses": 0, "invalid": 1}
-    assert ingester.take_counts() == {"readings": 0, "statuses": 0, "invalid": 0}
+    assert (
+        "Set aside a message on measure-station/mstn-2b/light in rejected_message: "
+        "not valid JSON" in caplog.text
+    )
+    assert ingester.take_counts() == {"readings": 2, "statuses": 0, "rejected": 1}
+    assert ingester.take_counts() == {"readings": 0, "statuses": 0, "rejected": 0}
 
 
 def test_messages_from_an_earlier_connection_are_not_acknowledged(ingester, events):

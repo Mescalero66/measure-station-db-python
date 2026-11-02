@@ -29,7 +29,7 @@ def query(store: Store, sql: str, *params) -> list[tuple]:
 
 
 def delivery(topic: str, payload: bytes, received_at: datetime = NOW) -> Delivery:
-    return Delivery(1, 1, 1, topic, received_at, check(topic, payload, BASE))
+    return Delivery(1, 1, 1, topic, received_at, check(topic, payload, BASE), payload)
 
 
 def co2(ts: datetime, ppm: int, ts_src: str = "ntp") -> Delivery:
@@ -107,9 +107,11 @@ def test_only_status_changes_are_stored(store):
     assert rows == [("online",), ("offline",)]
 
 
-def test_messages_with_problems_are_not_stored(store):
-    store.write([delivery(TOPIC, b"{broken")])
+def test_messages_with_problems_are_kept_as_received(store):
+    store.write([delivery(TOPIC, b"{broken \xff")])
     assert query(store, "SELECT count(*) FROM reading") == [(0,)]
+    rows = query(store, "SELECT received_at, topic, payload, problems FROM rejected_message")
+    assert rows == [(NOW, TOPIC, b"{broken \xff", "not valid JSON")]
 
 
 def test_averages_include_late_readings_after_a_refresh(store):
@@ -151,6 +153,7 @@ def test_compression_and_refresh_policies_exist(store):
 def test_grafana_can_read_every_table(store):
     if query(store, "SELECT 1 FROM pg_roles WHERE rolname = 'grafana_reader'") == []:
         pytest.skip("no grafana_reader role in this PostgreSQL")
-    for table in ("reading", "reading_value", "station_status", "value_hourly", "value_daily"):
+    tables = ("reading", "reading_value", "station_status", "rejected_message")
+    for table in (*tables, "value_hourly", "value_daily"):
         allowed = query(store, "SELECT has_table_privilege('grafana_reader', %s, 'SELECT')", table)
         assert allowed == [(True,)], table

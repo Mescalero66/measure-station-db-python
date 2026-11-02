@@ -12,8 +12,8 @@ How it keeps every reading (see docs/ingest-service.md):
   committed it, in the order they arrived (as MQTT requires). Until then the broker
   keeps it, and resends it after a reconnect. Resent duplicates are ignored by the
   tables' primary keys.
-- A message that breaks the station's interface is logged and acknowledged, so it
-  can't block the queue.
+- A message that breaks the station's interface is kept as received in the
+  rejected_message table, logged and acknowledged, so it can't block the queue.
 - If the database is unavailable, nothing is acknowledged: the broker stops sending
   once max_inflight_messages are unacknowledged, and keeps the rest.
 """
@@ -65,6 +65,10 @@ _INSERT_STATUS = """
     )
     ON CONFLICT DO NOTHING
 """
+_INSERT_REJECTED = """
+    INSERT INTO rejected_message (received_at, topic, payload, problems)
+    VALUES (%s, %s, %s, %s)
+"""
 
 
 class SchemaError(Exception):
@@ -81,6 +85,7 @@ class Delivery:
     topic: str
     received_at: datetime
     message: Message
+    payload: bytes  # as received; kept for a message that doesn't fit the interface
 
 
 def value_columns(value: Any) -> tuple[float | None, str | None]:
@@ -136,15 +141,20 @@ class Store:
             conn.execute(statement)
 
     def write(self, deliveries: Sequence[Delivery]) -> None:
-        """Store a batch in one transaction. Messages with problems are skipped."""
+        """Store a batch in one transaction.
+
+        A message with problems goes to rejected_message, exactly as received.
+        """
         from psycopg.types.json import Jsonb
 
         readings: list[tuple[Any, ...]] = []
         values: list[tuple[Any, ...]] = []
         statuses: list[dict[str, Any]] = []
+        rejected: list[tuple[Any, ...]] = []
         for d in deliveries:
             m = d.message
             if m.problems:
+                rejected.append((d.received_at, d.topic, d.payload, "; ".join(m.problems)))
                 continue
             if m.is_status:
                 statuses.append(
@@ -168,6 +178,8 @@ class Store:
                 cur.executemany(_INSERT_VALUE, values)
             if statuses:
                 cur.executemany(_INSERT_STATUS, statuses)
+            if rejected:
+                cur.executemany(_INSERT_REJECTED, rejected)
 
     def refresh_aggregates(self, start: datetime, end: datetime) -> None:
         conn = self._connection()
@@ -217,7 +229,7 @@ class Ingester:
         self._first_at = 0.0
         self._late: tuple[datetime, datetime] | None = None  # oldest and newest late ts
         self._late_since = 0.0
-        self.counts = {"readings": 0, "statuses": 0, "invalid": 0}
+        self.counts = {"readings": 0, "statuses": 0, "rejected": 0}
 
     def add(self, delivery: Delivery, now: float) -> None:
         if not self.pending:
@@ -225,7 +237,11 @@ class Ingester:
         self.pending.append(delivery)
         m = delivery.message
         if m.problems:
-            log.warning("Ignored a message on %s: %s", delivery.topic, "; ".join(m.problems))
+            log.warning(
+                "Set aside a message on %s in rejected_message: %s",
+                delivery.topic,
+                "; ".join(m.problems),
+            )
         elif m.ts is not None and delivery.received_at - m.ts > self._late_after:
             if self._late is None:
                 self._late, self._late_since = (m.ts, m.ts), now
@@ -257,7 +273,7 @@ class Ingester:
             if d.qos > 0 and d.generation == generation:
                 self._ack(d.mid, d.qos)
             m = d.message
-            kind = "invalid" if m.problems else "statuses" if m.is_status else "readings"
+            kind = "rejected" if m.problems else "statuses" if m.is_status else "readings"
             self.counts[kind] += 1
 
     def refresh_due(self, now: float) -> bool:
@@ -355,7 +371,15 @@ def run() -> int:
     def on_message(client: Any, userdata: Any, message: Any) -> None:
         msg = check(message.topic, message.payload, base)
         deliveries.put(
-            Delivery(message.mid, message.qos, generation[0], message.topic, datetime.now(UTC), msg)
+            Delivery(
+                message.mid,
+                message.qos,
+                generation[0],
+                message.topic,
+                datetime.now(UTC),
+                msg,
+                message.payload,
+            )
         )
 
     client = mqtt.Client(
@@ -427,10 +451,10 @@ def run() -> int:
                 counts = ingester.take_counts()
                 if any(counts.values()):
                     log.info(
-                        "Stored %d readings and %d status messages; ignored %d invalid",
+                        "Stored %d readings and %d status messages; set aside %d that didn't fit",
                         counts["readings"],
                         counts["statuses"],
-                        counts["invalid"],
+                        counts["rejected"],
                     )
     except KeyboardInterrupt:
         pass
