@@ -254,6 +254,62 @@ Not built now. Two routes stay open:
 - a Mosquitto *bridge*: a few lines of broker configuration that forward every message to
   a cloud MQTT broker as well.
 
+## Sensor.Community (Future)
+
+**To do, for future thought:** sharing live readings with
+[Sensor.Community](https://sensor.community), the citizen network that shows air quality
+on a public map. Not built. The plan so far, from a first look on 2026-11-11:
+
+**Their API.** One HTTPS `POST` per sensor type, about every 2½ minutes, to
+`https://api.sensor.community/v1/push-sensor-data/`
+([API notes](https://github.com/opendata-stuttgart/meta/wiki/EN-APIs)). Each request has:
+
+- an `X-Sensor` header: the device ID (for a Raspberry Pi, `raspi-` plus the Pi's serial
+  number);
+- an `X-Pin` header: a number for the kind of sensor (1 = particulates, 3 = BMP280,
+  7 = temperature and humidity, 17 = SCD30);
+- a JSON body: `{"software_version": "...", "sensordatavalues": [{"value_type": "P2",
+  "value": "4.1"}, ...]}`.
+
+**Their server stamps each reading with its time of arrival**, and asks for no timestamp.
+So only live readings can be sent: a backlog after an outage would land at the wrong
+time, and must be skipped.
+
+**Which of our sensors fit.** Sensor.Community knows only the models its own firmware
+supports:
+
+| Our source (model) | Their nearest match | Fit |
+|---|---|---|
+| `particulates` (SEN62/SEN65) | Pin 1 (SPS30, SDS011…): `P0` = PM1, `P2` = PM2.5, `P1` = PM10 | Good, and the map's main subject; but the SEN6x isn't on their list |
+| `barometer` (BMP280) | Pin 3, BMP280 | Exact; the units may need converting (probably pascals, not hPa) |
+| `humidity` (CHT8305) | Pin 7 (SHT3x, DHT22) | Good |
+| `co2` (SCD41) | Pin 17, SCD30 | Possible, but a different model |
+| light, MQ gases, ENS160, health | none | Not sent |
+
+**To settle first:**
+
+- **Registration:** a station is registered on `devices.sensor.community`, which ties each
+  sensor type to a pin. Check what the form offers for a Raspberry Pi, and ask them
+  whether a SEN6x may be listed as an SPS30, rather than quietly labelling it as one.
+- **Siting:** the network is about outdoor air, so the station would need to be outside.
+- **Privacy:** the station's location appears on a public map, and the data is published
+  under an open licence.
+
+**How it would be built.** A small separate service, `measure-station-db-sensorcommunity`,
+switched on and off in `sysconfig.py` like the Modbus poller. The station, ingest service
+and database don't change.
+
+- It listens to the broker like the message checker: its own read-only login and a clean
+  session (missed messages aren't wanted, since they'd be stale).
+- It keeps the latest reading of each mapped source, and about every 2½ minutes sends the
+  ones less than a few minutes old.
+- When Sensor.Community can't be reached, it logs that and skips the round; nothing piles
+  up.
+- No new packages: Python's built-in `urllib` makes the HTTPS request.
+
+Roughly the size of the message checker. Best built once phases 1 and 2 are running on
+the Pi, and after registering with Sensor.Community.
+
 ## Other Kinds of Device
 
 **Modbus TCP devices** are read by the Modbus poller, which publishes each one as a
@@ -326,7 +382,8 @@ can't contain hyphens). Python 3.11 or later. Main libraries: `paho-mqtt` 2.x, `
 6. **Backups,** once there's a location for them.
 7. **LED display and button.**
 8. **Later:** online storage, more stations, translators for other MQTT devices,
-   HDMI-CEC.
+   HDMI-CEC, and sharing readings with
+   [Sensor.Community](#sensorcommunity-future).
 
 Also written, outside the phases: the message checker, and the Modbus poller (off by
 default).
