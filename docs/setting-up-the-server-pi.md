@@ -60,10 +60,10 @@ value instead.
 
 | What | Example | Used in |
 |---|---|---|
-| A name for the Pi on the network (its hostname) | `server1` | Step 2 |
-| A username for logging in to the Pi | `admin` | Step 2 |
+| A name for the Pi on the network (its hostname) | `mstn=db` | Step 2 |
+| A username for logging in to the Pi | `mstn` | Step 2 |
 | The address the server Pi will always have | `192.168.1.20` | Step 4 |
-| The IP address of the time source on your network, the same one the stations use | `192.168.1.1` | Step 5 |
+| The IP address of the time source on your network, the same one the stations use | `192.168.1.200` | Step 5 |
 | Each station's ID | `mstn-2b` | Step 6 |
 | Access to your router's settings page | | Step 4 |
 
