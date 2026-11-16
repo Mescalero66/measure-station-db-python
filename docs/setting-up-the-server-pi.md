@@ -60,7 +60,7 @@ value instead.
 
 | What | Example | Used in |
 |---|---|---|
-| A name for the Pi on the network (its hostname) | `mstn=db` | Step 2 |
+| A name for the Pi on the network (its hostname) | `mstn-db` | Step 2 |
 | A username for logging in to the Pi | `mstn` | Step 2 |
 | The address the server Pi will always have | `192.168.1.20` | Step 4 |
 | The IP address of the time source on your network, the same one the stations use | `192.168.1.200` | Step 5 |
@@ -92,7 +92,7 @@ that is connected to the Pi. These few things are all you need.
   case-sensitive and spaces matter, so copy commands exactly. In this guide, commands are
   shown in grey boxes.
 - **The prompt.** When the Pi is ready for a command it shows a line such as
-  `admin@server1:~ $`. The part before `@` is your user; the part after is the Pi's name.
+  `mstn@mstn-db:~ $`. The part before `@` is your user; the part after is the Pi's name.
   While a command is still running, the prompt doesn't appear.
 - **Pasting.** In Windows Terminal or PowerShell, paste with **Ctrl+V** or a right-click.
   On a Mac, use **Cmd+V**.
@@ -155,7 +155,8 @@ SD card under a database's constant writing.
    - **Device:** Raspberry Pi 4.
    - **Operating system:** *Raspberry Pi OS (other)*, then **Raspberry Pi OS Lite
      (64-bit)**. "Lite" has no desktop, which saves memory for the database and the TV's
-     browser. It must be the **64-bit** version: Grafana and TimescaleDB need it.
+     browser. It still shows a picture on the TV: Step 9 sets it up to show the charts
+     full screen. It must be the **64-bit** version: Grafana and TimescaleDB need it.
    - **Storage:** your SSD. Check it's the right drive: everything on it is erased.
 3. Imager offers to **customise the OS settings**. Accept, and set the following. (Older
    versions of Imager show these in an "Edit settings" window with tabs; newer ones show
@@ -163,7 +164,7 @@ SD card under a database's constant writing.
 
    | Setting | Value |
    |---|---|
-   | Hostname | Your chosen name, e.g. `server1` |
+   | Hostname | Your chosen name, e.g. `mstn-db` |
    | Username and password | Your chosen login. Write the password down |
    | Wireless LAN | Leave off (the Pi uses the Ethernet cable) |
    | Locale | Your time zone and keyboard layout |
@@ -188,13 +189,13 @@ SD card under a database's constant writing.
 6. Connect, using your username and hostname from Step 2:
 
    ```bash
-   ssh admin@server1.local
+   ssh mstn@mstn-db.local
    ```
 
 7. The first time, it asks `Are you sure you want to continue connecting?`. Type `yes`
    and press Enter.
 8. Enter your Pi password (it doesn't show as you type). You should now see the Pi's
-   prompt, e.g. `admin@server1:~ $`. Every command from here on is typed at this prompt.
+   prompt, e.g. `mstn@mstn-db:~ $`. Every command from here on is typed at this prompt.
 
 If `ssh` says it can't find the host, see [Troubleshooting](#troubleshooting).
 
@@ -278,10 +279,10 @@ fallback.
    # Time source for the Measure Station server: the same one the stations use,
    # then a public server as a fallback. See docs/setting-up-the-server-pi.md.
    [Time]
-   NTP=192.168.1.1 pool.ntp.org
+   NTP=192.168.1.200 pool.ntp.org
    ```
 
-   Replace `192.168.1.1` with your time source's address. The servers are separated by a
+   Replace `192.168.1.200` with your time source's address. The servers are separated by a
    space, in order of preference.
 
 3. Apply it:
@@ -910,9 +911,9 @@ to disk on a clean stop; pulling the plug can lose up to the last 60 seconds of 
 | The TV doesn't turn green in Step 1 | Check the TV is on the right input, and that the cable is in **HDMI 0** (next to the power socket). Write the SD card again and retry |
 | The Pi doesn't start from the SSD | Try the other blue USB port. Check Step 1 worked. Some USB-to-SATA adapters don't work with a Pi 4: try another adapter, or a different SSD |
 | The SSD disconnects, or is very slow | Some USB-to-SATA adapters misbehave with the Pi 4's fast USB mode. Run `lsusb` and find the adapter's line, e.g. `ID 152d:0578`. Add ` usb-storage.quirks=152d:0578:u` (with your ID, and a space before it) to the end of the single line in `/boot/firmware/cmdline.txt` with `sudo nano`, then `sudo reboot` |
-| `ssh` says `Could not resolve hostname` | Your computer can't find the Pi by name. Find its IP address in your router's list of connected devices (look for your hostname), then use it: `ssh admin@192.168.1.20` |
+| `ssh` says `Could not resolve hostname` | Your computer can't find the Pi by name. Find its IP address in your router's list of connected devices (look for your hostname), then use it: `ssh mstn@192.168.1.20` |
 | `ssh` says `Connection refused` or times out | The Pi is still starting (wait 2 more minutes), or SSH wasn't enabled in Step 2 (write the SSD again) |
-| `ssh` warns `REMOTE HOST IDENTIFICATION HAS CHANGED` | Normal after writing the SSD again. Clear the old entry, then connect again: `ssh-keygen -R server1.local` |
+| `ssh` warns `REMOTE HOST IDENTIFICATION HAS CHANGED` | Normal after writing the SSD again. Clear the old entry, then connect again: `ssh-keygen -R mstn-db.local` |
 | `System clock synchronized: no` for a long time | Check the address in `/etc/systemd/timesyncd.conf.d/measure-station-db.conf`, and that the time source is reachable: `timedatectl timesync-status` shows which server it's trying |
 | Mosquitto shows `failed` | Its log says why: `sudo journalctl -u mosquitto -n 30`. Usually a typo in one of the files from Step 6. `Duplicate persistence_location` means the persistence lines were repeated in `measure-station-db.conf`: remove them |
 | A test in Step 6 says `not authorised` when it should work | The username or password is wrong. Set the password again with `sudo mosquitto_passwd /etc/mosquitto/passwd <username>` (no `-c`), run the `chown` and `chmod` commands, then `sudo systemctl restart mosquitto` |

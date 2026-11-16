@@ -106,8 +106,11 @@ can't stop data being stored.
 
 ### Memory Budget (2 GB)
 
-The Pi runs Raspberry Pi OS **Lite** (64-bit, no desktop). The TV's browser is started
-directly in full-screen mode. These are estimates, to be measured on the Pi:
+The Pi runs Raspberry Pi OS **Lite** (64-bit). Lite has no *desktop* (no taskbar, windows
+or file manager), but it still drives the TV over HDMI: a tiny display program (Cage)
+shows the browser full screen, with nothing else around it. The keyboard and mouse aren't
+needed, since you set the Pi up over `ssh` and phones control the TV. These are
+estimates, to be measured on the Pi:
 
 | Component | Approximate RAM |
 |---|---|
