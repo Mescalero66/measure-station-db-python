@@ -32,6 +32,7 @@ Contents:
 - [Step 7: Install the Database (PostgreSQL + TimescaleDB)](#step-7-install-the-database-postgresql--timescaledb)
 - [Step 8: Install Grafana](#step-8-install-grafana)
 - [Step 9: Set Up the TV](#step-9-set-up-the-tv)
+  ([What the TV Shows](#what-the-tv-shows-no-login-needed))
 - [Step 10: Check Everything](#step-10-check-everything)
 - [What Comes Next](#what-comes-next)
 - [Everyday Tasks](#everyday-tasks)
@@ -753,7 +754,8 @@ Look for **`Active: active (running)`**. Press **q** to quit.
    should say the database connection is OK.
 
 You can also open the same address on a phone connected to your home Wi-Fi. There are no
-dashboards yet: they come with the next phases.
+dashboards yet: once readings are arriving, make the first one with
+[Viewing the Data in Grafana](viewing-data-in-grafana.md).
 
 ## Step 9: Set Up the TV
 
@@ -839,6 +841,35 @@ show one app full screen.
 To get out of the kiosk, connect with `ssh` as usual: the TV keeps showing the browser
 while you work.
 
+### What the TV Shows (No Login Needed)
+
+The TV never needs a login, a keyboard or a mouse:
+
+- **Anyone on your network may view Grafana without signing in.** The `GF_AUTH_ANONYMOUS_…`
+  lines in Step 8's [Settings](#step-8-install-grafana) allow it, and the TV views Grafana
+  that way. Signing in is only for changing dashboards, from your computer.
+- **The TV opens Grafana's home dashboard.** The kiosk script opens
+  `http://localhost:3000/?kiosk`: the address of Grafana's home page, with `?kiosk` to
+  hide Grafana's menus.
+- **Until you choose a home dashboard, that's the "Welcome to Grafana" page.** It has a
+  **Sign in** button in the corner. That's only an offer: nothing is waiting for you to
+  sign in.
+- **To show your data instead,** make a dashboard and set it as the home dashboard (☰,
+  then **Administration**, then **General**, then **Default preferences**, then **Home
+  Dashboard**). [Viewing the Data in Grafana](viewing-data-in-grafana.md) does this with
+  the **Live** dashboard. You choose what the TV shows from your computer, without
+  changing anything on the Pi.
+- **Reload the TV** after changing the home dashboard: connect with `ssh` and run
+  `pkill chromium`. The kiosk script starts the browser again within about 10 seconds.
+- **It starts fresh every time.** The browser runs in incognito mode, so it keeps no
+  login or settings between restarts. After a power cut it comes back to the same page by
+  itself.
+- **Later (build phase 4),** the kiosk opens the remote app's TV page instead, and phones
+  choose what it shows. That's a one-line change to the `URL=` line of `~/kiosk.sh`.
+
+If the TV shows a form with boxes for a username and password in the middle of the screen,
+viewing without signing in isn't working: see [Troubleshooting](#troubleshooting).
+
 ## Step 10: Check Everything
 
 Connect with `ssh` and run these checks.
@@ -922,5 +953,6 @@ to disk on a clean stop; pulling the plug can lose up to the last 60 seconds of 
 | Grafana's **Test** says `password authentication failed` | The password in the Grafana file doesn't match the database. Set it again in the database (Step 7, `\password grafana_reader`), put the same one in the Grafana file (Step 8), then `sudo systemctl restart grafana-server` |
 | Forgotten the Grafana admin password | `sudo grafana cli --homepath /usr/share/grafana --config /etc/grafana/grafana.ini admin reset-admin-password the-new-password`, then `sudo systemctl restart grafana-server` |
 | The TV shows a login prompt or text, not the browser | Check steps 4 and 5 of [Step 9](#step-9-set-up-the-tv). The browser's messages since start-up are in `journalctl -b -t kiosk` |
+| The TV, or a phone, shows **Grafana's** login form (boxes for a username and password) | Viewing without signing in isn't switched on. Check with `systemctl show grafana-server -p Environment`: it should include `GF_AUTH_ANONYMOUS_ENABLED=true`. If not, check the settings file in [Step 8](#step-8-install-grafana), then `sudo systemctl daemon-reload` and `sudo systemctl restart grafana-server` |
 | The browser shows "Aw, Snap!" or the Pi becomes very slow | Probably out of memory. Check `free -h`, and send the output to the developer |
 | The TV goes black after about 10 minutes | Run `sudo sed -i '1 s/$/ consoleblank=0/' /boot/firmware/cmdline.txt` (once), then `sudo reboot` |

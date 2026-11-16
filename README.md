@@ -4,9 +4,10 @@ The server for [Measure Station](https://github.com/Mescalero66/measure-station-
 a Raspberry Pi that receives readings from one or more stations over MQTT, stores them in
 a database on a USB SSD, and presents them on a TV and on phones on the local network.
 
-**Status: building.** This README is the design plan. Written so far: the Pi setup
-guide, the ingest service and the message checker. None of it has run on the real Pi
-yet.
+**Status: building.** This README is the design plan. The Pi is set up and the ingest
+service is storing a station's readings (build phases 1 and 2). A first, hand-made
+Grafana dashboard shows the live data. Next: the finished dashboards (phase 3). See
+[Build Phases](#build-phases).
 
 ## Documentation
 
@@ -16,6 +17,8 @@ yet.
   network as "virtual stations" (off until switched on).
 - [The Ingest Service](docs/ingest-service.md): installing the service that stores the
   readings, checking it, connecting the first station, and everyday tasks.
+- [Viewing the Data in Grafana](docs/viewing-data-in-grafana.md): a first dashboard
+  showing the live readings, on a computer, the TV and phones.
 - [Checking Messages From a Station](docs/checking-station-messages.md): checking on the
   server Pi that a station's readings arrive, complete and in the right form.
 - [Development](docs/development.md): setting up a development copy, running the tests
@@ -207,7 +210,10 @@ away.
 
 - **Grafana** is open to anyone on the LAN as a viewer, so phones need no login. Editing
   dashboards needs the admin login. Dashboards and the database connection are
-  provisioned from files in this repo.
+  provisioned from files in this repo. (The first dashboard,
+  [Live](docs/viewing-data-in-grafana.md), is made by hand until then.)
+- **The TV never needs a login or a keyboard.** It opens Grafana as an anonymous viewer,
+  in kiosk mode (no menus), showing Grafana's home dashboard. Until phase 4, that's Live.
 - **The TV page** (`/tv` in the remote app) fills the screen with a Grafana dashboard in
   kiosk mode. It listens for changes from the remote app, so it switches as soon as a
   button is pressed on a phone.
@@ -370,15 +376,16 @@ can't contain hyphens). Python 3.11 or later. Main libraries: `paho-mqtt` 2.x, `
 
 ## Build Phases
 
-1. **Pi setup** ([guide written](docs/setting-up-the-server-pi.md)): SSD boot,
+1. **Pi setup** (done; [guide](docs/setting-up-the-server-pi.md)): SSD boot,
    Raspberry Pi OS Lite 64-bit, fixed IP, NTP, Mosquitto with persistence and logins,
    PostgreSQL + TimescaleDB with the database and its logins, Grafana connected to the
    database, and the TV kiosk showing Grafana.
-2. **Database and ingest service** ([written](docs/ingest-service.md), not yet run on
-   the Pi): schema, hypertables, batching with acknowledgement after commit,
-   de-duplication, status, tests, installer. Then the station is pointed at the server,
-   and its backlog drains.
-3. **Grafana:** the averages, and the first dashboards for phones.
+2. **Database and ingest service** (done, and receiving readings;
+   [guide](docs/ingest-service.md)): schema, hypertables, batching with acknowledgement
+   after commit, de-duplication, status, tests, installer. Then the station is pointed
+   at the server, and its backlog drains.
+3. **Grafana** (started: a hand-made [Live dashboard](docs/viewing-data-in-grafana.md)):
+   the averages, and the finished dashboards for phones, kept as files in this repo.
 4. **TV:** TV page, remote page and presets (the kiosk then shows the TV page).
 5. **Revisit alerts** (deferred; see [Alerts](#alerts-deferred)), including whether to
    notify someone away from home.
