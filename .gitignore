@@ -226,5 +226,6 @@ data/
 
 # Claude Code session notes
 CLAUDE.md
+.claude/*
 
 gitattributes

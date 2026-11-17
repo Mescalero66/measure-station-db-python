@@ -21,6 +21,10 @@ Grafana dashboard shows the live data. Next: the finished dashboards (phase 3). 
   showing the live readings, on a computer, the TV and phones.
 - [Checking Messages From a Station](docs/checking-station-messages.md): checking on the
   server Pi that a station's readings arrive, complete and in the right form.
+- [The LED Display and Button](docs/led-display.md): wiring the 8-digit display and its
+  button to the Pi safely, and choosing what they show.
+- [Backups](docs/backups.md): nightly backups of the database to a Synology NAS, copied
+  on to Google Drive, and how to restore them.
 - [Development](docs/development.md): setting up a development copy, running the tests
   and checks, and the database tests on the Pi.
 
@@ -33,8 +37,8 @@ Grafana dashboard shows the live data. Next: the finished dashboards (phase 3). 
 - **Presentation:** a TV (HDMI, no keyboard or mouse) controlled from a phone, and phones
   browsing the data on the LAN. Users pick one or more sensors, see graphs over time,
   and compare current values with weekly and monthly averages. Ease of use matters.
-- **LED display (later):** an 8-digit 7-segment I2C display with a push button that
-  cycles through values.
+- **LED display:** an 8-digit 7-segment I2C display with a push button that cycles
+  through values ([guide](docs/led-display.md)).
 
 ## The Station Interface Is Fixed
 
@@ -51,7 +55,7 @@ proposed only for a show-stopping error.
                       (broker)      (Python)              │              │
                                                           ▼              ▼
                                                        Grafana      display service ──► LED display + button
-                                                       (charts)     (later)
+                                                       (charts)     (off until switched on)
                                                           │
                                                           ▼ (shown inside)
  Phone ── remote page ──► remote app ──► TV page (Chromium, full screen) ──► TV (HDMI)
@@ -69,7 +73,7 @@ Everything between the stations and the phones runs on the server Pi.
 | **Remote app** | A small web app with two pages: the **TV page** (full screen, shows a Grafana dashboard) and the **remote page** (on a phone: buttons that choose what the TV shows) | Ours (Python) |
 | **Kiosk** | Chromium in full-screen mode on the TV, started at boot, with no desktop | Off the shelf, configured by us |
 | **Modbus poller** (optional, off by default) | Reads Modbus TCP devices on a timer and publishes their values to the broker as station messages, so each device is a "virtual station" | Ours (Python), with the Modbus client copied from `device-data-receiver` |
-| **Display service** (later) | Drives the LED display; the button cycles through values | Ours (Python) |
+| **Display service** (optional, off by default) | Shows the latest value of one series on the LED display; the button moves to the next | Ours (Python), with the display driver ported from the user's MicroPython one |
 
 Each of our programs is its own `systemd` service, so a fault in one (e.g. the display)
 can't stop data being stored.
@@ -105,7 +109,8 @@ can't stop data being stored.
 | Server Pi | Raspberry Pi 4 Model B, 2 GB (SC0400 desktop kit), with its official power supply |
 | Storage | USB SSD in a blue USB 3 port. The Pi **boots from the SSD**, so the SD card isn't used at all |
 | TV | HDMI, output set to 1080p (a 4K output would make the browser work four times as hard) |
-| LED display | 8-digit 7-segment, I2C, plus a push button (details later) |
+| LED display | DFRobot DFR0646 (8 digits, Holtek HT16K33A, I2C, 5 V), on the Pi's I2C bus 1 |
+| Button | DFRobot DFR0029-G (Gravity digital push button, signal high when pressed), on GPIO 17, powered from 3.3 V |
 
 ### Memory Budget (2 GB)
 
@@ -250,9 +255,21 @@ configured with the address.
 
 ## Backups
 
-Deferred: there's no backup location yet. Until there is, the SSD is a single point of
-failure. The plan is a nightly `pg_dump` (a full database export) to that location once
-it exists.
+Written (off until switched on): see [Backups](docs/backups.md).
+
+- **Every night at 03:30,** the whole database is exported with `pg_dump` into a
+  **restic** repository on the Synology NAS, over SFTP with a key. The NAS's Cloud Sync
+  copies the repository to Google Drive (upload only).
+- **restic stores only what changed,** so each night adds about a day's readings, and
+  many copies cost little more than one. It encrypts everything on the Pi with a password
+  kept in a password manager.
+- **Copies kept:** 14 daily, 8 weekly and 24 monthly. Every Sunday, restic reads back 10%
+  of the stored data to check it.
+- **A failed export saves nothing,** and old copies are only removed after a good backup.
+- **Each copy is tagged with its PostgreSQL and TimescaleDB versions,** because a dump can
+  only be restored into the same TimescaleDB version.
+- **A restore loses up to a day** of readings: those since the last backup, which the
+  stations have already deleted.
 
 ## Online Storage (Future)
 
@@ -353,14 +370,16 @@ src/measure_station_db/
     schema.py           the database tables, applied by the ingest service
     watch.py            checker: shows and checks the messages arriving from stations
     modbus.py           the Modbus poller: Modbus TCP devices as virtual stations
+    backup.py           the nightly backup: pg_dump into a restic repository
     drivers/            code copied unchanged from other projects (the Modbus TCP client)
     remote/             the remote app: TV page and remote page
-    display/            LED display and button (later)
+    display/            LED display and button: the HT16K33 driver and the service
 deploy/
     install.sh          installs or updates the server's own programs
     env.example         template for /etc/measure-station-db/env (the passwords)
     grafana/            dashboards, as provisioning files (phase 3)
-    systemd/            one unit per service
+    systemd/            one unit per service (and the backup's timer)
+    measure-station-db-backup   the backup command for use by hand
 docs/                   one page per topic: Pi setup, operating, development
 tests/                  tests; fixtures/ holds the station's documented example messages
 ```
@@ -372,7 +391,8 @@ files.
 
 The package is `measure-station-db` (imported as `measure_station_db`, since Python names
 can't contain hyphens). Python 3.11 or later. Main libraries: `paho-mqtt` 2.x, `psycopg` 3
-(PostgreSQL), a small web framework for the remote app, and `smbus2` (display, later).
+(PostgreSQL), a small web framework for the remote app, and `smbus2` and `gpiod` (the
+display and its button, on the Pi only).
 
 ## Build Phases
 
@@ -389,8 +409,13 @@ can't contain hyphens). Python 3.11 or later. Main libraries: `paho-mqtt` 2.x, `
 4. **TV:** TV page, remote page and presets (the kiosk then shows the TV page).
 5. **Revisit alerts** (deferred; see [Alerts](#alerts-deferred)), including whether to
    notify someone away from home.
-6. **Backups,** once there's a location for them.
-7. **LED display and button.**
+6. **Backups** ([written](docs/backups.md), not yet run): nightly to the NAS, and from
+   there to Google Drive.
+7. **LED display and button** ([written](docs/led-display.md), not yet run on the Pi).
+   **To do, later:**
+   - a long press of the button switches the display off (e.g. at night), and on again;
+   - dimming the display automatically at night;
+   - cycling through the values by itself, without pressing the button.
 8. **Later:** online storage, more stations, translators for other MQTT devices,
    HDMI-CEC, and sharing readings with
    [Sensor.Community](#sensorcommunity-future).

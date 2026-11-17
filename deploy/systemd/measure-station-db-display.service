@@ -1,0 +1,35 @@
+# Installed by deploy/install.sh (@APP_DIR@ and @APP_USER@ are substituted).
+[Unit]
+Description=Measure Station server: shows the latest readings on the LED display
+Documentation=file://@APP_DIR@/docs/led-display.md
+After=postgresql.service
+# Never give up restarting after a failure.
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+# The service user is in the i2c and gpio groups (deploy/install.sh), which may use the
+# display's I2C bus and the button's GPIO pin.
+User=@APP_USER@
+Group=@APP_USER@
+WorkingDirectory=@APP_DIR@
+ExecStart=@APP_DIR@/.venv/bin/python -m measure_station_db.display
+EnvironmentFile=-/etc/measure-station-db/env
+Environment=PYTHONUNBUFFERED=1
+
+# Restart after a crash, but not after a clean exit: with the display switched off (the
+# default), it logs that and exits, and stays stopped.
+Restart=on-failure
+RestartSec=5
+# Nor after a configuration error (EX_CONFIG), which needs a person.
+RestartPreventExitStatus=78
+TimeoutStopSec=10
+
+# Hardening.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -72,6 +72,80 @@ INGEST_RETRY_S: int = 10
 INGEST_STATS_INTERVAL_S: int = 60
 
 # --------------------------------------------------------------------------- #
+# Backups (docs/backups.md)
+# --------------------------------------------------------------------------- #
+# Every night the whole database is exported (pg_dump) into a restic repository: a
+# folder of encrypted backup files, here on the NAS. restic stores only what changed,
+# so many copies take little more space than one.
+# Off by default. To switch it on, follow docs/backups.md, then set this to True.
+BACKUP_ENABLED: bool = False
+# Where the copies go. "sftp:<user>@<NAS address>:/<shared folder>/<folder>" for the NAS,
+# or a plain folder path (e.g. a USB drive).
+BACKUP_REPOSITORY: str = "sftp:measure-station-db@192.168.1.30:/backups/measure-station-db"
+# The repository's password: it encrypts the copies. Lose it and they can't be read.
+BACKUP_PASSWORD: str | None = _env("BACKUP_PASSWORD")
+# The Pi's login key for the NAS, and the NAS's own key (checked at every connection).
+BACKUP_SSH_KEY: str = "/etc/measure-station-db/backup-key"
+BACKUP_KNOWN_HOSTS: str = "/etc/measure-station-db/backup-known-hosts"
+# restic's local index cache (speeds up each run; safe to delete).
+BACKUP_CACHE_DIR: str = "/var/cache/measure-station-db/restic"
+# Which copies to keep: the last N days, plus one a week and one a month for longer.
+BACKUP_KEEP_DAILY: int = 14
+BACKUP_KEEP_WEEKLY: int = 8
+BACKUP_KEEP_MONTHLY: int = 24
+# One night a week (0 = Monday ... 6 = Sunday), also check that the copies can be read
+# back, reading this share of the stored data (a different part each time).
+BACKUP_CHECK_WEEKDAY: int = 6
+BACKUP_CHECK_READ: str = "10%"
+
+# --------------------------------------------------------------------------- #
+# LED display and button (docs/led-display.md)
+# --------------------------------------------------------------------------- #
+# An 8-digit 7-segment display (DFRobot DFR0646) shows one value at a time; each press
+# of the button (DFRobot DFR0029) moves to the next value in DISPLAY_ITEMS.
+# Off by default. To switch it on, wire it up (docs/led-display.md), then set this to
+# True and run: sudo systemctl restart measure-station-db-display
+DISPLAY_ENABLED: bool = False
+# The display: the Pi's I2C bus 1 (pins 3 and 5), at the DFR0646's default address.
+DISPLAY_I2C_BUS: int = 1
+DISPLAY_I2C_ADDRESS: int = 0x70
+# 0 (dim, not off) to 15 (brightest).
+DISPLAY_BRIGHTNESS: int = 8
+# True if the display is mounted upside down.
+DISPLAY_ROTATED: bool = False
+# The button: its GPIO number (not the pin number: GPIO 17 is pin 11), and whether its
+# signal goes high (True, as the DFR0029 does) or low when pressed.
+DISPLAY_BUTTON_GPIO_CHIP: str = "/dev/gpiochip0"
+DISPLAY_BUTTON_GPIO: int = 17
+DISPLAY_BUTTON_PRESSED_HIGH: bool = True
+# After a press, the value's label is shown on its own for this long.
+DISPLAY_LABEL_S: float = 1.5
+# How often the shown value is read again from the database.
+DISPLAY_REFRESH_S: float = 10
+# A value older than this shows as "----" (the sensor has stopped sending).
+DISPLAY_STALE_S: float = 300
+
+# The station whose values are shown (unless an item names another).
+DISPLAY_STATION: str = "mstn-2b"
+# The values, in button order. Options:
+#   label     Shown after a press, and in front of the value when both fit in 8 digits.
+#             Letters are approximations on 7 segments (e.g. "t", "rh", "co2", "Pm2.5").
+#   source    The station's source (sensor), as in the database.
+#   key       The value's name, as in the database (docs/viewing-data-in-grafana.md,
+#             Step 2, lists them).
+#   decimals  Optional: digits after the decimal point. Default 1.
+#   section   Optional: "values" (the default) or "meta".
+#   station   Optional: another station than DISPLAY_STATION.
+DISPLAY_ITEMS: list[dict[str, Any]] = [
+    {"label": "co2", "source": "co2", "key": "co2_ppm", "decimals": 0},
+    {"label": "t", "source": "temperature", "key": "temperature_c", "decimals": 1},
+    {"label": "rh", "source": "humidity", "key": "humidity_pct", "decimals": 0},
+    {"label": "P", "source": "barometer", "key": "pressure_hpa", "decimals": 1},
+    {"label": "Pm2.5", "source": "particulates", "key": "pm25_ugm3", "decimals": 1},
+    {"label": "LUX", "source": "light", "key": "illuminance_lux", "decimals": 0},
+]
+
+# --------------------------------------------------------------------------- #
 # Modbus TCP devices (docs/modbus-devices.md)
 # --------------------------------------------------------------------------- #
 # The Modbus poller reads each enabled device's registers on a timer, and publishes them

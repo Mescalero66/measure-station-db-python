@@ -1,0 +1,15 @@
+# Installed by deploy/install.sh. Starts measure-station-db-backup.service every night.
+# The backup itself stays off until BACKUP_ENABLED is True in sysconfig.py
+# (docs/backups.md).
+[Unit]
+Description=Measure Station server: nightly database backup
+Documentation=file://@APP_DIR@/docs/backups.md
+
+[Timer]
+# 03:30 in the Pi's time zone.
+OnCalendar=*-*-* 03:30:00
+# If the Pi was off at that time, back up soon after it starts.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

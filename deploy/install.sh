@@ -14,9 +14,13 @@ APP_USER=measure-station-db
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VENV_DIR="$APP_DIR/.venv"
 ETC_DIR="/etc/$APP_NAME"
-# The Modbus poller is installed and enabled too, but exits at once while
-# MODBUS_ENABLED is False in sysconfig.py (docs/modbus-devices.md).
-SERVICES=(measure-station-db-ingest measure-station-db-modbus)
+# The Modbus poller and the LED display are installed and enabled too, but exit at once
+# while MODBUS_ENABLED / DISPLAY_ENABLED are False in sysconfig.py
+# (docs/modbus-devices.md, docs/led-display.md).
+SERVICES=(measure-station-db-ingest measure-station-db-modbus measure-station-db-display)
+# Started by a timer, not at boot. The backup stays off while BACKUP_ENABLED is False
+# in sysconfig.py (docs/backups.md).
+TIMED_SERVICES=(measure-station-db-backup)
 
 log() { printf '\n==> %s\n' "$*"; }
 
@@ -27,12 +31,18 @@ fi
 
 log "Installing system packages"
 apt-get update
-apt-get install -y --no-install-recommends python3 python3-venv python3-pip git
+apt-get install -y --no-install-recommends python3 python3-venv python3-pip git restic
 
 log "Creating service user '$APP_USER'"
 if ! id "$APP_USER" &>/dev/null; then
     useradd --system --no-create-home --shell /usr/sbin/nologin "$APP_USER"
 fi
+# The LED display's I2C bus and its button's GPIO pin (Raspberry Pi OS's groups).
+for group in i2c gpio; do
+    if getent group "$group" >/dev/null; then
+        usermod -aG "$group" "$APP_USER"
+    fi
+done
 
 log "Creating Python virtual environment at $VENV_DIR"
 python3 -m venv "$VENV_DIR"
@@ -48,16 +58,33 @@ if [[ ! -f "$ETC_DIR/env" ]]; then
     install -m 0640 -o root -g "$APP_USER" "$APP_DIR/deploy/env.example" "$ETC_DIR/env"
 fi
 
+log "Installing the backup command"
+# restic's cache for backups run by hand (the service creates it too).
+install -d -m 0750 -o "$APP_USER" -g "$APP_USER" "/var/cache/$APP_NAME"
+sed -e "s#@APP_DIR@#$APP_DIR#g" -e "s#@APP_USER@#$APP_USER#g" \
+    "$APP_DIR/deploy/measure-station-db-backup" > /usr/local/bin/measure-station-db-backup
+chmod 0755 /usr/local/bin/measure-station-db-backup
+
 log "Installing systemd services"
-for service in "${SERVICES[@]}"; do
+install_unit() {
     sed -e "s#@APP_DIR@#$APP_DIR#g" -e "s#@APP_USER@#$APP_USER#g" \
-        "$APP_DIR/deploy/systemd/$service.service" > "/etc/systemd/system/$service.service"
+        "$APP_DIR/deploy/systemd/$1" > "/etc/systemd/system/$1"
+}
+for service in "${SERVICES[@]}"; do
+    install_unit "$service.service"
+done
+for service in "${TIMED_SERVICES[@]}"; do
+    install_unit "$service.service"
+    install_unit "$service.timer"
 done
 systemctl daemon-reload
 for service in "${SERVICES[@]}"; do
     systemctl enable "$service.service"
     # After an update: restart a service that's already running, so it runs the new code.
     systemctl try-restart "$service.service"
+done
+for service in "${TIMED_SERVICES[@]}"; do
+    systemctl enable --now "$service.timer"
 done
 
 cat <<EOF
@@ -71,4 +98,6 @@ Next steps (the first time):
      Follow its log:       journalctl -u measure-station-db-ingest -f
 
 Modbus devices are off until switched on: see docs/modbus-devices.md.
+Backups are off until switched on: see docs/backups.md.
+The LED display is off until switched on: see docs/led-display.md.
 EOF

@@ -1,0 +1,29 @@
+# Installed by deploy/install.sh (@APP_DIR@ and @APP_USER@ are substituted).
+# Started every night by measure-station-db-backup.timer; by hand with
+#     sudo systemctl start measure-station-db-backup
+[Unit]
+Description=Measure Station server: backs up the database
+Documentation=file://@APP_DIR@/docs/backups.md
+Wants=network-online.target
+After=network-online.target postgresql.service
+
+[Service]
+Type=oneshot
+User=@APP_USER@
+Group=@APP_USER@
+WorkingDirectory=@APP_DIR@
+ExecStart=@APP_DIR@/.venv/bin/python -m measure_station_db.backup
+EnvironmentFile=-/etc/measure-station-db/env
+Environment=PYTHONUNBUFFERED=1
+# restic's cache: /var/cache/measure-station-db, owned by the service user.
+CacheDirectory=measure-station-db
+# Give up on a backup that hangs, e.g. if the NAS stops answering.
+TimeoutStartSec=6h
+# Run gently: storing readings and the TV come first.
+Nice=10
+
+# Hardening.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
