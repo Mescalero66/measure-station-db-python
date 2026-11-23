@@ -1,0 +1,15 @@
+{
+  "interval": "2m",
+  "items": [
+    {
+      "type": "dashboard_by_uid",
+      "value": "adh88dp"
+    },
+    {
+      "type": "dashboard_by_uid",
+      "value": "adqjnj5"
+    }
+  ],
+  "name": "TV",
+  "uid": "adrhbc7"
+}

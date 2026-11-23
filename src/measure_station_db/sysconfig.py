@@ -15,6 +15,7 @@ file's directory on ``sys.path`` directly, or it will shadow the standard librar
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Any
 
 
@@ -70,6 +71,21 @@ INGEST_REFRESH_INTERVAL_S: int = 300
 INGEST_RETRY_S: int = 10
 # How often to log how much was stored.
 INGEST_STATS_INTERVAL_S: int = 60
+
+# --------------------------------------------------------------------------- #
+# Grafana dashboards (docs/saving-dashboards.md)
+# --------------------------------------------------------------------------- #
+# Dashboards are designed in Grafana, in the browser. "python -m
+# measure_station_db.dashboards save" keeps copies of them in this repo, and "restore"
+# puts the copies back (e.g. after rebuilding the Pi).
+# Grafana's address: the server's hostname (from the setup guide's Step 2) plus ".local",
+# then ":3000". It works from the PC and from the Pi itself.
+GRAFANA_URL: str = _env("GRAFANA_URL") or "http://mstn-db.local:3000"
+# The login for "restore" ("save" needs none: anyone on the LAN may view dashboards).
+GRAFANA_USERNAME: str = _env("GRAFANA_USERNAME") or "admin"
+GRAFANA_PASSWORD: str | None = _env("GRAFANA_PASSWORD")
+# Where the copies are kept: deploy/grafana/ in this repo.
+GRAFANA_COPIES_DIR: Path = Path(__file__).resolve().parents[2] / "deploy" / "grafana"
 
 # --------------------------------------------------------------------------- #
 # Backups (docs/backups.md)

@@ -19,6 +19,10 @@ Grafana dashboard shows the live data. Next: the finished dashboards (phase 3). 
   readings, checking it, connecting the first station, and everyday tasks.
 - [Viewing the Data in Grafana](docs/viewing-data-in-grafana.md): a first dashboard
   showing the live readings, on a computer, the TV and phones.
+- [Dashboards on the TV](docs/tv-dashboards.md): designing dashboards for the TV, and
+  showing them in turn with a Grafana playlist.
+- [Saving Dashboards in the Repo](docs/saving-dashboards.md): keeping copies of the
+  dashboards and playlists in this repo, and putting them back.
 - [Checking Messages From a Station](docs/checking-station-messages.md): checking on the
   server Pi that a station's readings arrive, complete and in the right form.
 - [The LED Display and Button](docs/led-display.md): wiring the 8-digit display and its
@@ -214,11 +218,15 @@ away.
 ## Presentation
 
 - **Grafana** is open to anyone on the LAN as a viewer, so phones need no login. Editing
-  dashboards needs the admin login. Dashboards and the database connection are
-  provisioned from files in this repo. (The first dashboard,
-  [Live](docs/viewing-data-in-grafana.md), is made by hand until then.)
+  dashboards needs the admin login. The database connection is provisioned from a file
+  (the setup guide's).
+- **Dashboards are designed in Grafana, in the browser,** which holds the master copy.
+  `python -m measure_station_db.dashboards save` copies every dashboard, playlist and
+  folder into `deploy/grafana/` for git, and `restore` puts them back
+  ([guide](docs/saving-dashboards.md)). They're in folders: **TV**, and later **Phone**.
 - **The TV never needs a login or a keyboard.** It opens Grafana as an anonymous viewer,
-  in kiosk mode (no menus), showing Grafana's home dashboard. Until phase 4, that's Live.
+  in kiosk mode (no menus): a playlist that shows the TV dashboards in turn
+  ([guide](docs/tv-dashboards.md)), or before that, Grafana's home dashboard.
 - **The TV page** (`/tv` in the remote app) fills the screen with a Grafana dashboard in
   kiosk mode. It listens for changes from the remote app, so it switches as soon as a
   button is pressed on a phone.
@@ -371,13 +379,14 @@ src/measure_station_db/
     watch.py            checker: shows and checks the messages arriving from stations
     modbus.py           the Modbus poller: Modbus TCP devices as virtual stations
     backup.py           the nightly backup: pg_dump into a restic repository
+    dashboards.py       copies of Grafana's dashboards and playlists: save and restore
     drivers/            code copied unchanged from other projects (the Modbus TCP client)
     remote/             the remote app: TV page and remote page
     display/            LED display and button: the HT16K33 driver and the service
 deploy/
     install.sh          installs or updates the server's own programs
     env.example         template for /etc/measure-station-db/env (the passwords)
-    grafana/            dashboards, as provisioning files (phase 3)
+    grafana/            copies of the dashboards, playlists and folders, saved from Grafana
     systemd/            one unit per service (and the backup's timer)
     measure-station-db-backup   the backup command for use by hand
 docs/                   one page per topic: Pi setup, operating, development
@@ -404,8 +413,10 @@ display and its button, on the Pi only).
    [guide](docs/ingest-service.md)): schema, hypertables, batching with acknowledgement
    after commit, de-duplication, status, tests, installer. Then the station is pointed
    at the server, and its backlog drains.
-3. **Grafana** (started: a hand-made [Live dashboard](docs/viewing-data-in-grafana.md)):
-   the averages, and the finished dashboards for phones, kept as files in this repo.
+3. **Grafana** (started: a first [Live dashboard](docs/viewing-data-in-grafana.md),
+   [TV dashboards in a playlist](docs/tv-dashboards.md), and
+   [copies kept in this repo](docs/saving-dashboards.md)): the TV dashboards, the
+   averages, and later the dashboards for phones.
 4. **TV:** TV page, remote page and presets (the kiosk then shows the TV page).
 5. **Revisit alerts** (deferred; see [Alerts](#alerts-deferred)), including whether to
    notify someone away from home.

@@ -9,9 +9,12 @@ You need the ingest service running and readings arriving (see
 [The Ingest Service](ingest-service.md)), and Grafana's `admin` password from the setup
 guide's [Step 8](setting-up-the-server-pi.md#step-8-install-grafana).
 
-This is a hand-made starting point. Later build phases add finished dashboards, with
-sensor pickers and weekly and monthly averages, kept as files in this repo. The Live
-dashboard stays until you delete it.
+This is a starting point. Then:
+
+- [Dashboards on the TV](tv-dashboards.md) makes dashboards for the TV, and shows them in
+  turn with a playlist.
+- [Saving Dashboards in the Repo](saving-dashboards.md) keeps copies of every dashboard
+  in this repo, and puts them back after a rebuild.
 
 **Grafana's menus change a little between versions.** If a button here has a slightly
 different name, look for something similar in the same place.
@@ -28,6 +31,7 @@ Contents:
 - [Step 7: Make It Update by Itself, and Save](#step-7-make-it-update-by-itself-and-save)
 - [Step 8: Show It on the TV and on Phones](#step-8-show-it-on-the-tv-and-on-phones)
 - [Charting Any Other Value](#charting-any-other-value)
+- [Two Different Values on One Chart](#two-different-values-on-one-chart)
 - [Troubleshooting](#troubleshooting)
 
 ## Grafana in Five Words
@@ -292,6 +296,66 @@ Some values to start with (yours may differ: check Step 2's list):
 
 To chart one value from every sensor that measures it (like Step 6), copy the
 temperature chart instead and change its `key`, e.g. to `humidity_pct`.
+
+## Two Different Values on One Chart
+
+A chart can hold several lines with different units, e.g. the temperature from the
+MCP9808 (source `temperature`) and the humidity from the CHT8305 (source `humidity`).
+Each line gets its own **query**, and the second unit gets a scale on the right-hand side.
+
+1. Click **Add**, then **Visualization**. Click **Code**, and paste the first query (with
+   your station's ID):
+
+   ```sql
+   -- Line 1: air temperature from the MCP9808.
+   SELECT ts AS time, num_value AS temperature
+   FROM reading_value
+   WHERE $__timeFilter(ts)
+     AND station = 'mstn-2b'
+     AND source = 'temperature' AND section = 'values' AND key = 'temperature_c'
+     AND ts_src <> 'estimated'
+   ORDER BY ts
+   ```
+
+2. Below the query, click **+ Add query**. A second query box (**B**) appears. Click
+   **Code** in it, and paste:
+
+   ```sql
+   -- Line 2: relative humidity from the CHT8305.
+   SELECT ts AS time, num_value AS humidity
+   FROM reading_value
+   WHERE $__timeFilter(ts)
+     AND station = 'mstn-2b'
+     AND source = 'humidity' AND section = 'values' AND key = 'humidity_pct'
+     AND ts_src <> 'estimated'
+   ORDER BY ts
+   ```
+
+   Click **Run queries**. Two lines appear, named after the `AS` words: `temperature`
+   and `humidity`.
+3. **The panel's options** (on the right):
+   - **Title**: e.g. `Temperature and humidity`.
+   - **Unit**: **Celsius (°C)**. This is for the temperature; the next step changes it
+     for the humidity.
+   - **Connect null values**: **Threshold**, `5m` (as in
+     [Step 6](#step-6-compare-temperatures-from-every-sensor)).
+4. **Give the humidity its own scale.** At the top of the options, click **Overrides**
+   (next to **All**), then **Add field override**, then **Fields with name**, and choose
+   **humidity**. Then, under that override, click **Add override property** and add these
+   two:
+   - **Axis > Placement**: **Right**.
+   - **Standard options > Unit**: **Humidity (%H)**.
+
+   Now the temperature reads against the scale on the left, and the humidity against the
+   one on the right.
+5. **Always the last 24 hours** (whatever the dashboard's time range): above the queries,
+   click **Query options**, and set **Relative time** to `24h`. The panel shows
+   **Last 24 hours** in its title bar. (Or leave it empty to follow the dashboard's time
+   range.)
+6. Click **Back to dashboard**, and save.
+
+Any number of lines can be added the same way: one query each, with a different `AS`
+name. Lines with the same unit can share a scale; only a new unit needs an override.
 
 ## Troubleshooting
 

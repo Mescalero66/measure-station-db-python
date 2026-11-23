@@ -768,20 +768,43 @@ that login starts the browser. **Cage** is a tiny display program whose only job
 show one app full screen.
 
 1. **Set the TV picture to 1080p.** At 4K, the browser would make the Pi work four times
-   as hard for no visible gain at viewing distance. This adds a setting to the Pi's start-up
-   options, unless it's already there:
+   as hard for no visible gain at viewing distance. This takes two settings:
+
+   - **At start-up:** this adds a setting to the Pi's start-up options, unless it's
+     already there:
+
+     ```bash
+     grep -q 'video=HDMI-A-1' /boot/firmware/cmdline.txt || sudo sed -i '1 s/$/ video=HDMI-A-1:1920x1080@60/' /boot/firmware/cmdline.txt
+     ```
+
+     Check it: `cat /boot/firmware/cmdline.txt` should print **one** line, ending with
+     `video=HDMI-A-1:1920x1080@60`.
+
+   - **Every time the TV is switched on:** when the TV goes into standby, the Pi sees it
+     as unplugged. When it comes back, Cage picks the TV's favourite picture size again
+     (4K) and ignores the start-up setting. **kanshi** is a small helper that watches for
+     a screen being plugged in and puts back the size you chose. Its settings go in its
+     own file:
+
+     ```bash
+     mkdir -p ~/.config/kanshi
+     cat > ~/.config/kanshi/config <<'EOF'
+     # Keeps the TV at 1080p, even after it's switched off and on.
+     # See docs/setting-up-the-server-pi.md, Step 9.
+     profile tv {
+         output HDMI-A-1 mode 1920x1080@60Hz
+     }
+     EOF
+     ```
+
+     Check it: `cat ~/.config/kanshi/config` should show the four lines from `profile`
+     to `}`. The kiosk script (step 3) starts kanshi alongside the browser.
+
+2. **Install the browser, Cage, kanshi, and wlr-randr** (a tool that shows the TV's
+   picture size, used in [Checking the TV's Picture Size](#checking-the-tvs-picture-size)):
 
    ```bash
-   grep -q 'video=HDMI-A-1' /boot/firmware/cmdline.txt || sudo sed -i '1 s/$/ video=HDMI-A-1:1920x1080@60/' /boot/firmware/cmdline.txt
-   ```
-
-   Check it: `cat /boot/firmware/cmdline.txt` should print **one** line, ending with
-   `video=HDMI-A-1:1920x1080@60`.
-
-2. **Install the browser and Cage:**
-
-   ```bash
-   sudo apt install -y cage chromium
+   sudo apt install -y cage chromium kanshi wlr-randr
    ```
 
 3. **Create the kiosk script**, which starts the browser and starts it again if it ever
@@ -791,15 +814,19 @@ show one app full screen.
    ```bash
    #!/bin/sh
    # Shows a web page full screen on the TV, and restarts the browser if it closes.
+   # kanshi runs alongside the browser and keeps the TV at 1080p.
    # Its messages go to the system log, tagged "kiosk". See docs/setting-up-the-server-pi.md.
-   URL="http://localhost:3000/?kiosk"
+   export URL="http://localhost:3000/?kiosk"
    while true; do
-       systemd-cat -t kiosk cage -- chromium --kiosk --incognito --noerrdialogs \
-           --disable-infobars --no-first-run --password-store=basic \
-           --ozone-platform=wayland "$URL"
+       systemd-cat -t kiosk cage -- sh -c 'kanshi & exec chromium --kiosk --incognito \
+           --noerrdialogs --disable-infobars --no-first-run --password-store=basic \
+           --ozone-platform=wayland "$URL"'
        sleep 5
    done
    ```
+
+   Inside Cage, `sh -c '…'` starts kanshi in the background (`&`), then becomes the
+   browser (`exec`). When the browser closes, Cage closes, and kanshi stops with it.
 
    Then make it runnable:
 
@@ -864,11 +891,30 @@ The TV never needs a login, a keyboard or a mouse:
 - **It starts fresh every time.** The browser runs in incognito mode, so it keeps no
   login or settings between restarts. After a power cut it comes back to the same page by
   itself.
+- **To show several dashboards in turn,** make a playlist and put its address in the
+  `export URL=` line of `~/kiosk.sh`: see [Dashboards on the TV](tv-dashboards.md).
 - **Later (build phase 4),** the kiosk opens the remote app's TV page instead, and phones
-  choose what it shows. That's a one-line change to the `URL=` line of `~/kiosk.sh`.
+  choose what it shows. That's another change to the same line.
 
 If the TV shows a form with boxes for a username and password in the middle of the screen,
 viewing without signing in isn't working: see [Troubleshooting](#troubleshooting).
+
+### Checking the TV's Picture Size
+
+To see which picture size the Pi is sending, connect with `ssh` and run (as your own user,
+without `sudo`):
+
+```bash
+WAYLAND_DISPLAY=wayland-0 XDG_RUNTIME_DIR=/run/user/$(id -u) wlr-randr
+```
+
+It lists every size the TV accepts. The one in use is marked **`current`**: it should be
+`1920x1080 px, 60.000000 Hz` (the TV's favourite, 4K, is marked `preferred`; that's
+fine). The first part of the command tells `wlr-randr` where to find Cage, since your
+`ssh` login isn't the TV's login.
+
+Test it the way it failed before: switch the TV off with its remote, wait a minute,
+switch it on, and run the command again. It should still say `current` next to 1080p.
 
 ## Step 10: Check Everything
 
@@ -940,6 +986,7 @@ to disk on a clean stop; pulling the plug can lose up to the last 60 seconds of 
 | Problem | What to do |
 |---|---|
 | The TV doesn't turn green in Step 1 | Check the TV is on the right input, and that the cable is in **HDMI 0** (next to the power socket). Write the SD card again and retry |
+| The TV goes back to 4K (2160p) after it's switched off and on | kanshi isn't putting 1080p back. Check that `~/kiosk.sh` has `kanshi &` in it, and `~/.config/kanshi/config` is as in Step 9. Then look at its messages: `journalctl -t kiosk -n 50 \| grep -i kanshi`. If it says it can't find the mode, run the command in [Checking the TV's Picture Size](#checking-the-tvs-picture-size), and copy the TV's exact 1080p rate into the config (e.g. `1920x1080@59.940Hz`) |
 | The Pi doesn't start from the SSD | Try the other blue USB port. Check Step 1 worked. Some USB-to-SATA adapters don't work with a Pi 4: try another adapter, or a different SSD |
 | The SSD disconnects, or is very slow | Some USB-to-SATA adapters misbehave with the Pi 4's fast USB mode. Run `lsusb` and find the adapter's line, e.g. `ID 152d:0578`. Add ` usb-storage.quirks=152d:0578:u` (with your ID, and a space before it) to the end of the single line in `/boot/firmware/cmdline.txt` with `sudo nano`, then `sudo reboot` |
 | `ssh` says `Could not resolve hostname` | Your computer can't find the Pi by name. Find its IP address in your router's list of connected devices (look for your hostname), then use it: `ssh mstn@192.168.1.20` |
