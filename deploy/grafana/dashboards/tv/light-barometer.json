@@ -139,7 +139,7 @@
         ]
       },
       "gridPos": {
-        "h": 9,
+        "h": 15,
         "w": 11,
         "x": 0,
         "y": 0
@@ -224,6 +224,111 @@
       "title": "Barometer",
       "transparent": true,
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "displayName": "Barometer",
+          "max": 1045,
+          "min": 980,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1005
+              },
+              {
+                "color": "#EAB839",
+                "value": 1020
+              }
+            ]
+          },
+          "unit": "pressurehpa"
+        }
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 4,
+        "x": 11,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "barShape": "flat",
+        "barWidthFactor": 0.6,
+        "effects": {
+          "barGlow": false,
+          "centerGlow": false,
+          "gradient": true
+        },
+        "endpointMarker": "point",
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "segmentCount": 63,
+        "segmentSpacing": 0.5,
+        "shape": "gauge",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "sparkline": false,
+        "textMode": "value_and_name"
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT num_value AS pressure\r\nFROM reading_value\r\nWHERE station = 'mstn-2b'\r\n  AND source = 'barometer' AND section = 'values' AND key = 'pressure_hpa'\r\n  AND ts_src <> 'estimated'\r\n  AND ts > now() - INTERVAL '15 minutes'\r\nORDER BY ts DESC\r\nLIMIT 1",
+          "refId": "Pressure",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "gauge"
     },
     {
       "datasource": {
@@ -344,9 +449,9 @@
         ]
       },
       "gridPos": {
-        "h": 9,
-        "w": 8,
-        "x": 11,
+        "h": 15,
+        "w": 9,
+        "x": 15,
         "y": 0
       },
       "id": 7,
@@ -438,111 +543,6 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 0,
-          "displayName": "Barometer",
-          "max": 1040,
-          "min": 980,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              },
-              {
-                "color": "green",
-                "value": 1005
-              },
-              {
-                "color": "#EAB839",
-                "value": 1020
-              }
-            ]
-          },
-          "unit": "pressurehpa"
-        }
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 5,
-        "x": 19,
-        "y": 0
-      },
-      "id": 3,
-      "options": {
-        "barShape": "flat",
-        "barWidthFactor": 0.6,
-        "effects": {
-          "barGlow": false,
-          "centerGlow": false,
-          "gradient": true
-        },
-        "endpointMarker": "point",
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "segmentCount": 63,
-        "segmentSpacing": 0.5,
-        "shape": "gauge",
-        "showThresholdLabels": true,
-        "showThresholdMarkers": true,
-        "sizing": "auto",
-        "sparkline": false,
-        "textMode": "value_and_name"
-      },
-      "pluginVersion": "13.3.1",
-      "targets": [
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT num_value AS pressure\r\nFROM reading_value\r\nWHERE station = 'mstn-2b'\r\n  AND source = 'barometer' AND section = 'values' AND key = 'pressure_hpa'\r\n  AND ts_src <> 'estimated'\r\n  AND ts > now() - INTERVAL '15 minutes'\r\nORDER BY ts DESC\r\nLIMIT 1",
-          "refId": "Pressure",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "",
-      "transparent": true,
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "measure-station-db"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
             "mode": "continuous-plasma",
             "seriesBy": "last"
           },
@@ -640,16 +640,22 @@
               {
                 "id": "custom.lineWidth",
                 "value": 1
+              },
+              {
+                "id": "custom.scaleDistribution",
+                "value": {
+                  "type": "linear"
+                }
               }
             ]
           }
         ]
       },
       "gridPos": {
-        "h": 9,
+        "h": 10,
         "w": 11,
         "x": 0,
-        "y": 9
+        "y": 15
       },
       "id": 9,
       "options": {
@@ -740,203 +746,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "continuous-plasma",
-            "seriesBy": "last"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisGridShow": true,
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 17,
-            "gradientMode": "scheme",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 3,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": 300000,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "lux"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "temperature",
-              "scope": "series"
-            },
-            "properties": [
-              {
-                "id": "custom.axisPlacement",
-                "value": "right"
-              },
-              {
-                "id": "custom.drawStyle",
-                "value": "line"
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "solid"
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#454545",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 0
-              },
-              {
-                "id": "unit",
-                "value": "celsius"
-              },
-              {
-                "id": "custom.axisColorMode",
-                "value": "series"
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 1
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 8,
-        "x": 11,
-        "y": 9
-      },
-      "id": 10,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "enableFacetedFilter": false,
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.3.1",
-      "targets": [
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "time_series",
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS lux\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'light'\r\n  AND section = 'values'\r\n  AND key = 'illuminance_lux'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
-          "refId": "Lux",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS temperature\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'temperature'\r\n  AND section = 'values'\r\n  AND key = 'temperature_c'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
-          "refId": "Temp",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "timeFrom": "2h",
-      "title": "Lux",
-      "transparent": true,
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "measure-station-db"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "continuous-inferno"
+            "mode": "continuous-plasma"
           },
           "displayName": "Illuminance",
           "thresholds": {
@@ -952,10 +762,10 @@
         }
       },
       "gridPos": {
-        "h": 8,
-        "w": 5,
-        "x": 19,
-        "y": 9
+        "h": 10,
+        "w": 4,
+        "x": 11,
+        "y": 15
       },
       "id": 6,
       "options": {
@@ -980,7 +790,7 @@
         "segmentCount": 63,
         "segmentSpacing": 0.5,
         "shape": "gauge",
-        "showThresholdLabels": true,
+        "showThresholdLabels": false,
         "showThresholdMarkers": true,
         "sizing": "auto",
         "sparkline": false,
@@ -1072,6 +882,202 @@
       ],
       "transparent": true,
       "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-plasma",
+            "seriesBy": "last"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisGridShow": true,
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 17,
+            "gradientMode": "scheme",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 3,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": 300000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "lux"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "temperature",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "solid"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#454545",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "unit",
+                "value": "celsius"
+              },
+              {
+                "id": "custom.axisColorMode",
+                "value": "series"
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 9,
+        "x": 15,
+        "y": 15
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "enableFacetedFilter": false,
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS lux\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'light'\r\n  AND section = 'values'\r\n  AND key = 'illuminance_lux'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "Lux",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS temperature\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'temperature'\r\n  AND section = 'values'\r\n  AND key = 'temperature_c'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "Temp",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "timeFrom": "2h",
+      "title": "Lux",
+      "transparent": true,
+      "type": "timeseries"
     }
   ],
   "preload": false,

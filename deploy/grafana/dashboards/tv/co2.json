@@ -1,0 +1,1096 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds",
+            "seriesBy": "max"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "series",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "scheme",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": 300000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 450
+              },
+              {
+                "color": "orange",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 600
+              }
+            ]
+          },
+          "unit": "ppm"
+        }
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "enableFacetedFilter": false,
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS co2\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'co2'\r\n  AND section = 'values'\r\n  AND key = 'co2_ppm'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "CO2",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "timeFrom": "24h",
+      "title": "CO2",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "displayName": "CO2",
+          "max": 650,
+          "min": 400,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 450
+              },
+              {
+                "color": "orange",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 600
+              }
+            ]
+          },
+          "unit": "ppm"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 5,
+        "x": 0,
+        "y": 11
+      },
+      "id": 8,
+      "options": {
+        "barShape": "flat",
+        "barWidthFactor": 0.6,
+        "effects": {
+          "barGlow": false,
+          "centerGlow": false,
+          "gradient": true
+        },
+        "endpointMarker": "point",
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "segmentCount": 63,
+        "segmentSpacing": 0.5,
+        "shape": "gauge",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "sparkline": false,
+        "textMode": "value_and_name"
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT num_value AS co2\r\nFROM reading_value\r\nWHERE station = 'mstn-2b'\r\n  AND source = 'co2' AND section = 'values' AND key = 'co2_ppm'\r\n  AND ts_src <> 'estimated'\r\n  AND ts > now() - INTERVAL '15 minutes'\r\nORDER BY ts DESC\r\nLIMIT 1",
+          "refId": "Temp",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "displayName": "CO2",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 450
+              },
+              {
+                "color": "orange",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 600
+              }
+            ]
+          },
+          "unit": "ppm"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 5,
+        "y": 11
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": false
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "-- Average CO2 over the last 24 hours.\r\nSELECT sum(avg_value * n) / sum(n) AS \"Last 24 h\"\r\nFROM value_hourly\r\nWHERE station = 'mstn-2b' AND section = 'values'\r\n  AND source = 'co2' AND key = 'co2_ppm'\r\n  AND bucket >= now() - INTERVAL '24 hours'",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "24 Hr Average",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "text",
+                "value": -20
+              },
+              {
+                "color": "dark-green",
+                "value": -10
+              },
+              {
+                "color": "semi-dark-green",
+                "value": -5
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "orange",
+                "value": 20
+              },
+              {
+                "color": "dark-orange",
+                "value": 30
+              },
+              {
+                "color": "light-red",
+                "value": 40
+              },
+              {
+                "color": "red",
+                "value": 50
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 60
+              }
+            ]
+          },
+          "unit": "ppm"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 9,
+        "y": 11
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^difference$/",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "name",
+        "wideLayout": false
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "-- How the last 24 hours' average CO2 compares with the periods before it,\r\n-- shown as a signed difference only: \"+23 ppm\", \"-8 ppm\".\r\nWITH series AS (\r\n  SELECT bucket, avg_value, n\r\n  FROM value_hourly\r\n  WHERE station = 'mstn-2b' AND section = 'values'\r\n    AND source = 'co2' AND key = 'co2_ppm'\r\n    AND bucket >= now() - INTERVAL '1 year 1 day'\r\n),\r\nlast_day AS (\r\n  SELECT sum(avg_value * n) / sum(n) AS avg\r\n  FROM series\r\n  WHERE bucket >= now() - INTERVAL '24 hours'\r\n),\r\ncompared AS (\r\n  SELECT p.ord,\r\n         CASE WHEN count(s.bucket) >= 24\r\n              THEN (SELECT avg FROM last_day) - sum(s.avg_value * s.n) / sum(s.n)\r\n         END AS difference\r\n  FROM (VALUES\r\n          (1, INTERVAL '3 days')) AS p(ord, span)\r\n  LEFT JOIN series s\r\n    ON s.bucket >= now() - INTERVAL '24 hours' - p.span\r\n   AND s.bucket <  now() - INTERVAL '24 hours'\r\n  GROUP BY p.ord\r\n)\r\nSELECT coalesce(to_char(difference, 'FMSG9990') || ' ppm', 'no data') AS shown,\r\n       difference\r\nFROM compared\r\nORDER BY ord",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "3 Day",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "text",
+                "value": -20
+              },
+              {
+                "color": "dark-green",
+                "value": -10
+              },
+              {
+                "color": "semi-dark-green",
+                "value": -5
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "orange",
+                "value": 20
+              },
+              {
+                "color": "dark-orange",
+                "value": 30
+              },
+              {
+                "color": "light-red",
+                "value": 40
+              },
+              {
+                "color": "red",
+                "value": 50
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 60
+              }
+            ]
+          },
+          "unit": "ppm"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 12,
+        "y": 11
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^difference$/",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "name",
+        "wideLayout": false
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "-- How the last 24 hours' average CO2 compares with the periods before it,\r\n-- shown as a signed difference only: \"+23 ppm\", \"-8 ppm\".\r\nWITH series AS (\r\n  SELECT bucket, avg_value, n\r\n  FROM value_hourly\r\n  WHERE station = 'mstn-2b' AND section = 'values'\r\n    AND source = 'co2' AND key = 'co2_ppm'\r\n    AND bucket >= now() - INTERVAL '1 year 1 day'\r\n),\r\nlast_day AS (\r\n  SELECT sum(avg_value * n) / sum(n) AS avg\r\n  FROM series\r\n  WHERE bucket >= now() - INTERVAL '24 hours'\r\n),\r\ncompared AS (\r\n  SELECT p.ord,\r\n         CASE WHEN count(s.bucket) >= 24\r\n              THEN (SELECT avg FROM last_day) - sum(s.avg_value * s.n) / sum(s.n)\r\n         END AS difference\r\n  FROM (VALUES\r\n          (2, INTERVAL '7 days')) AS p(ord, span)\r\n  LEFT JOIN series s\r\n    ON s.bucket >= now() - INTERVAL '24 hours' - p.span\r\n   AND s.bucket <  now() - INTERVAL '24 hours'\r\n  GROUP BY p.ord\r\n)\r\nSELECT coalesce(to_char(difference, 'FMSG9990') || ' ppm', 'no data') AS shown,\r\n       difference\r\nFROM compared\r\nORDER BY ord",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Week",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "text",
+                "value": -20
+              },
+              {
+                "color": "dark-green",
+                "value": -10
+              },
+              {
+                "color": "semi-dark-green",
+                "value": -5
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "orange",
+                "value": 20
+              },
+              {
+                "color": "dark-orange",
+                "value": 30
+              },
+              {
+                "color": "light-red",
+                "value": 40
+              },
+              {
+                "color": "red",
+                "value": 50
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 60
+              }
+            ]
+          },
+          "unit": "ppm"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 15,
+        "y": 11
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^difference$/",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "name",
+        "wideLayout": false
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "-- How the last 24 hours' average CO2 compares with the periods before it,\r\n-- shown as a signed difference only: \"+23 ppm\", \"-8 ppm\".\r\nWITH series AS (\r\n  SELECT bucket, avg_value, n\r\n  FROM value_hourly\r\n  WHERE station = 'mstn-2b' AND section = 'values'\r\n    AND source = 'co2' AND key = 'co2_ppm'\r\n    AND bucket >= now() - INTERVAL '1 year 1 day'\r\n),\r\nlast_day AS (\r\n  SELECT sum(avg_value * n) / sum(n) AS avg\r\n  FROM series\r\n  WHERE bucket >= now() - INTERVAL '24 hours'\r\n),\r\ncompared AS (\r\n  SELECT p.ord,\r\n         CASE WHEN count(s.bucket) >= 24\r\n              THEN (SELECT avg FROM last_day) - sum(s.avg_value * s.n) / sum(s.n)\r\n         END AS difference\r\n  FROM (VALUES\r\n          (3, INTERVAL '14 days')) AS p(ord, span)\r\n  LEFT JOIN series s\r\n    ON s.bucket >= now() - INTERVAL '24 hours' - p.span\r\n   AND s.bucket <  now() - INTERVAL '24 hours'\r\n  GROUP BY p.ord\r\n)\r\nSELECT coalesce(to_char(difference, 'FMSG9990') || ' ppm', 'no data') AS shown,\r\n       difference\r\nFROM compared\r\nORDER BY ord",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Fortnight",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "text",
+                "value": -20
+              },
+              {
+                "color": "dark-green",
+                "value": -10
+              },
+              {
+                "color": "semi-dark-green",
+                "value": -5
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "orange",
+                "value": 20
+              },
+              {
+                "color": "dark-orange",
+                "value": 30
+              },
+              {
+                "color": "light-red",
+                "value": 40
+              },
+              {
+                "color": "red",
+                "value": 50
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 60
+              }
+            ]
+          },
+          "unit": "ppm"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 18,
+        "y": 11
+      },
+      "id": 14,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^difference$/",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "name",
+        "wideLayout": false
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "-- How the last 24 hours' average CO2 compares with the periods before it,\r\n-- shown as a signed difference only: \"+23 ppm\", \"-8 ppm\".\r\nWITH series AS (\r\n  SELECT\r\n    bucket,\r\n    avg_value,\r\n    n\r\n  FROM\r\n    value_hourly\r\n  WHERE\r\n    station = 'mstn-2b'\r\n    AND section = 'values'\r\n    AND source = 'co2'\r\n    AND key = 'co2_ppm'\r\n    AND bucket >= now() - INTERVAL '1 year 1 day'\r\n),\r\nlast_day AS (\r\n  SELECT\r\n    sum(avg_value * n) / sum(n) AS avg\r\n  FROM\r\n    series\r\n  WHERE\r\n    bucket >= now() - INTERVAL '24 hours'\r\n),\r\ncompared AS (\r\n  SELECT\r\n    p.ord,\r\n    CASE\r\n      WHEN count(s.bucket) >= 24 THEN (\r\n        SELECT\r\n          avg\r\n        FROM\r\n          last_day\r\n      ) - sum(s.avg_value * s.n) / sum(s.n)\r\n    END AS difference\r\n  FROM\r\n    (\r\n      VALUES\r\n        (4, INTERVAL '1 month')\r\n    ) AS p(ord, span)\r\n    LEFT JOIN series s ON s.bucket >= now() - INTERVAL '24 hours' - p.span\r\n    AND s.bucket < now() - INTERVAL '24 hours'\r\n  GROUP BY\r\n    p.ord\r\n)\r\nSELECT\r\n  coalesce(\r\n    to_char(difference, 'FMSG9990') || ' ppm',\r\n    'no data'\r\n  ) AS shown,\r\n  difference\r\nFROM\r\n  compared\r\nORDER BY\r\n  ord",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Month",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "text",
+                "value": -20
+              },
+              {
+                "color": "dark-green",
+                "value": -10
+              },
+              {
+                "color": "semi-dark-green",
+                "value": -5
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "orange",
+                "value": 20
+              },
+              {
+                "color": "dark-orange",
+                "value": 30
+              },
+              {
+                "color": "light-red",
+                "value": 40
+              },
+              {
+                "color": "red",
+                "value": 50
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 60
+              }
+            ]
+          },
+          "unit": "ppm"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 21,
+        "y": 11
+      },
+      "id": 15,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^difference$/",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "name",
+        "wideLayout": false
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "-- How the last 24 hours' average CO2 compares with the periods before it,\r\n-- shown as a signed difference only: \"+23 ppm\", \"-8 ppm\".\r\nWITH series AS (\r\n  SELECT bucket, avg_value, n\r\n  FROM value_hourly\r\n  WHERE station = 'mstn-2b' AND section = 'values'\r\n    AND source = 'co2' AND key = 'co2_ppm'\r\n    AND bucket >= now() - INTERVAL '1 year 1 day'\r\n),\r\nlast_day AS (\r\n  SELECT sum(avg_value * n) / sum(n) AS avg\r\n  FROM series\r\n  WHERE bucket >= now() - INTERVAL '24 hours'\r\n),\r\ncompared AS (\r\n  SELECT p.ord,\r\n         CASE WHEN count(s.bucket) >= 24\r\n              THEN (SELECT avg FROM last_day) - sum(s.avg_value * s.n) / sum(s.n)\r\n         END AS difference\r\n  FROM (VALUES\r\n          (7, INTERVAL '1 year')) AS p(ord, span)\r\n  LEFT JOIN series s\r\n    ON s.bucket >= now() - INTERVAL '24 hours' - p.span\r\n   AND s.bucket <  now() - INTERVAL '24 hours'\r\n  GROUP BY p.ord\r\n)\r\nSELECT coalesce(to_char(difference, 'FMSG9990') || ' ppm', 'no data') AS shown,\r\n       difference\r\nFROM compared\r\nORDER BY ord",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Year",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 70,
+            "gradientMode": "scheme",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 10,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "min": 400,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 450
+              },
+              {
+                "color": "orange",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 600
+              }
+            ]
+          },
+          "unit": "ppm"
+        }
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
+      "id": 4,
+      "options": {
+        "barRadius": 0.05,
+        "barWidth": 0.95,
+        "colorByField": "co2",
+        "fullHighlight": false,
+        "groupWidth": 0.8,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "normal",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xField": "day",
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 100
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "-- Daily average CO2, for every day since the first reading\r\n-- (local Melbourne days; today is left out until it's complete).\r\nWITH daily AS (\r\n    SELECT time_bucket(INTERVAL '1 day', bucket, 'Australia/Melbourne') AS day_start,\r\n           sum(avg_value * n) / sum(n) AS co2\r\n    FROM value_hourly\r\n    WHERE bucket < time_bucket(INTERVAL '1 day', now(), 'Australia/Melbourne')\r\n      AND station = 'mstn-2b' AND source = 'co2'\r\n      AND section = 'values' AND key = 'co2_ppm'\r\n    GROUP BY 1\r\n)\r\nSELECT to_char(day_start AT TIME ZONE 'Australia/Melbourne', 'DD Mon') AS day,\r\n       co2\r\nFROM daily\r\nORDER BY day_start",
+          "refId": "CO2 Temp",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "CO2 Daily Average",
+      "transparent": true,
+      "type": "barchart"
+    }
+  ],
+  "preload": true,
+  "refresh": "30s",
+  "schemaVersion": 42,
+  "time": {
+    "from": "now-2d",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "browser",
+  "title": "CO2",
+  "uid": "adhbjx8"
+}

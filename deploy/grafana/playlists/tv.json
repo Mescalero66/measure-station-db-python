@@ -1,5 +1,5 @@
 {
-  "interval": "2m",
+  "interval": "45s",
   "items": [
     {
       "type": "dashboard_by_uid",
@@ -7,7 +7,19 @@
     },
     {
       "type": "dashboard_by_uid",
+      "value": "adt9pr6"
+    },
+    {
+      "type": "dashboard_by_uid",
+      "value": "adhbjx8"
+    },
+    {
+      "type": "dashboard_by_uid",
       "value": "adqjnj5"
+    },
+    {
+      "type": "dashboard_by_uid",
+      "value": "adsjmnk"
     }
   ],
   "name": "TV",
