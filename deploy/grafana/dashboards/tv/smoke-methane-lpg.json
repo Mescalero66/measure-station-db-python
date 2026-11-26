@@ -150,6 +150,66 @@
           "color": {
             "mode": "thresholds"
           },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "id": 18,
+      "options": {
+        "inlineEditing": true,
+        "panZoom": false,
+        "showAdvancedTypes": true,
+        "tooltip": {
+          "disableForOneClick": false,
+          "mode": "single"
+        },
+        "zoomToContent": false
+      },
+      "pluginVersion": "13.4.0",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "builder",
+          "format": "table",
+          "rawSql": "",
+          "refId": "A"
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "canvas"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
           "custom": {
             "axisBorderShow": false,
             "axisCenteredZero": false,
@@ -219,7 +279,463 @@
         "h": 9,
         "w": 8,
         "x": 0,
-        "y": 3
+        "y": 4
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "-- The six MQ gas sensors, each as a multiple of its clean-air reading (1 = clean air).\r\nSELECT v.ts AS time,\r\n       f.label AS metric,\r\n       v.num_value / f.clean_ppm::float8 AS value\r\nFROM reading_value v\r\nJOIN (VALUES\r\n        ('mqboard-mq2',   'Smoke (MQ2)',       13.0)) AS f(source, label, clean_ppm)\r\n  ON f.source = v.source\r\nWHERE $__timeFilter(v.ts)\r\n  AND v.station = 'mstn-2b'\r\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\r\n  AND v.ts_src <> 'estimated'\r\nORDER BY v.ts",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "timeFrom": "2h",
+      "title": "Smoke",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 2.5,
+            "axisSoftMin": 0.5,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "scheme",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 3,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": 300000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              },
+              {
+                "color": "#EAB839",
+                "value": 1.5
+              },
+              {
+                "color": "orange",
+                "value": 3
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "suffix:x"
+        }
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 8,
+        "y": 4
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "-- The six MQ gas sensors, each as a multiple of its clean-air reading (1 = clean air).\r\nSELECT v.ts AS time,\r\n       f.label AS metric,\r\n       v.num_value / f.clean_ppm::float8 AS value\r\nFROM reading_value v\r\nJOIN (VALUES\r\n        ('mqboard-mq4',   'Methane (MQ4)',     16.0)) AS f(source, label, clean_ppm)\r\n  ON f.source = v.source\r\nWHERE $__timeFilter(v.ts)\r\n  AND v.station = 'mstn-2b'\r\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\r\n  AND v.ts_src <> 'estimated'\r\nORDER BY v.ts",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "timeFrom": "2h",
+      "title": "Methane",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 2.5,
+            "axisSoftMin": 0.5,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "scheme",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 3,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": 300000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              },
+              {
+                "color": "#EAB839",
+                "value": 1.5
+              },
+              {
+                "color": "orange",
+                "value": 3
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "suffix:x"
+        }
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 4
+      },
+      "id": 14,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "-- The six MQ gas sensors, each as a multiple of its clean-air reading (1 = clean air).\r\nSELECT v.ts AS time,\r\n       f.label AS metric,\r\n       v.num_value / f.clean_ppm::float8 AS value\r\nFROM reading_value v\r\nJOIN (VALUES\r\n        ('mqboard-mq5',   'LPG (MQ5)',          0.85)) AS f(source, label, clean_ppm)\r\n  ON f.source = v.source\r\nWHERE $__timeFilter(v.ts)\r\n  AND v.station = 'mstn-2b'\r\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\r\n  AND v.ts_src <> 'estimated'\r\nORDER BY v.ts",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "timeFrom": "2h",
+      "title": "LPG",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "id": 11,
+      "options": {
+        "inlineEditing": true,
+        "panZoom": false,
+        "showAdvancedTypes": true,
+        "tooltip": {
+          "disableForOneClick": false,
+          "mode": "single"
+        },
+        "zoomToContent": false
+      },
+      "pluginVersion": "13.4.0",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "builder",
+          "format": "table",
+          "rawSql": "",
+          "refId": "A"
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "canvas"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 2.5,
+            "axisSoftMin": 0.5,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "scheme",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 3,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": 300000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              },
+              {
+                "color": "#EAB839",
+                "value": 1.5
+              },
+              {
+                "color": "orange",
+                "value": 3
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "suffix:x"
+        }
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 14
       },
       "id": 5,
       "options": {
@@ -269,6 +785,7 @@
       ],
       "timeFrom": "24h",
       "title": "Smoke",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -350,7 +867,7 @@
         "h": 9,
         "w": 8,
         "x": 8,
-        "y": 3
+        "y": 14
       },
       "id": 6,
       "options": {
@@ -400,6 +917,7 @@
       ],
       "timeFrom": "24h",
       "title": "Methane",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -481,7 +999,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 3
+        "y": 14
       },
       "id": 7,
       "options": {
@@ -531,67 +1049,8 @@
       ],
       "timeFrom": "24h",
       "title": "LPG",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "measure-station-db"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        }
-      },
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 12
-      },
-      "id": 11,
-      "options": {
-        "inlineEditing": true,
-        "panZoom": false,
-        "showAdvancedTypes": true,
-        "tooltip": {
-          "disableForOneClick": false,
-          "mode": "single"
-        },
-        "zoomToContent": false
-      },
-      "pluginVersion": "13.4.0",
-      "targets": [
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "builder",
-          "format": "table",
-          "rawSql": "",
-          "refId": "A"
-        }
-      ],
-      "title": "",
       "transparent": true,
-      "type": "canvas"
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -604,6 +1063,7 @@
             "fixedColor": "#ad46ff",
             "mode": "thresholds"
           },
+          "decimals": 2,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -612,7 +1072,7 @@
                 "value": 0
               },
               {
-                "color": "#EAB839",
+                "color": "yellow",
                 "value": 1.5
               },
               {
@@ -620,7 +1080,7 @@
                 "value": 3
               },
               {
-                "color": "red",
+                "color": "semi-dark-red",
                 "value": 10
               }
             ]
@@ -629,17 +1089,17 @@
         }
       },
       "gridPos": {
-        "h": 3,
-        "w": 24,
+        "h": 4,
+        "w": 8,
         "x": 0,
-        "y": 13
+        "y": 23
       },
-      "id": 4,
+      "id": 15,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "auto",
-        "orientation": "auto",
+        "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
@@ -661,9 +1121,9 @@
             "uid": "measure-station-db"
           },
           "editorMode": "code",
-          "format": "time_series",
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "-- The six MQ gas sensors, each as a multiple of its clean-air reading (1 = clean air).\r\nSELECT\r\n  v.ts AS time,\r\n  f.label AS metric,\r\n  v.num_value / f.clean_ppm :: float8 AS value\r\nFROM\r\n  reading_value v\r\n  JOIN (\r\n    VALUES\r\n      (\r\n        'mqboard-mq7',\r\n        'Carbon Monoxide (MQ7)',\r\n        0.65\r\n      ),\r\n      ('mqboard-mq8', 'Hydrogen (MQ8)', 53.0),\r\n      ('mqboard-mq135', 'Ammonia (MQ135)', 4.3)\r\n  ) AS f(source, label, clean_ppm) ON f.source = v.source\r\nWHERE\r\n  $__timeFilter(v.ts)\r\n  AND v.station = 'mstn-2b'\r\n  AND v.section = 'values'\r\n  AND v.key = 'concentration_ppm'\r\n  AND v.ts_src <> 'estimated'\r\nORDER BY\r\n  v.ts",
+          "rawSql": "-- Highest and lowest smoke reading (MQ2) in the last 24 hours, as a multiple of clean air.\r\nSELECT min(num_value) / 13.0 AS \"24h Min\",\r\n       max(num_value) / 13.0 AS \"24h Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'mqboard-mq2' AND section = 'values' AND key = 'concentration_ppm'\r\n  AND ts_src <> 'estimated'",
           "refId": "A",
           "sql": {
             "columns": [
@@ -684,33 +1144,8 @@
           }
         }
       ],
-      "title": "",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "includeByName": {},
-            "indexByName": {
-              "Ammonia (MQ135)": 6,
-              "Carbon Monoxide (MQ7)": 4,
-              "Hydrogen (MQ8)": 5,
-              "LPG (MQ5)": 3,
-              "Methane (MQ4)": 2,
-              "Smoke (MQ2)": 1,
-              "Time": 0
-            },
-            "renameByName": {
-              "Ammonia (MQ135)": "Ammonia",
-              "Carbon Monoxide (MQ7)": "Carbon Monoxide",
-              "Hydrogen (MQ8)": "Hydrogen",
-              "LPG (MQ5)": "LPG",
-              "Methane (MQ4)": "Methane",
-              "Smoke (MQ2)": "Smoke"
-            }
-          }
-        }
-      ],
+      "title": "Smoke",
+      "transparent": true,
       "type": "stat"
     },
     {
@@ -721,58 +1156,19 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "fixedColor": "#ad46ff",
             "mode": "thresholds"
           },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMax": 2.5,
-            "axisSoftMin": 0.5,
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "scheme",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 3,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": 300000,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "dashed"
-            }
-          },
-          "decimals": 1,
+          "decimals": 2,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "dark-green",
+                "color": "green",
                 "value": 0
               },
               {
-                "color": "green",
-                "value": 1
-              },
-              {
-                "color": "#EAB839",
+                "color": "yellow",
                 "value": 1.5
               },
               {
@@ -780,7 +1176,7 @@
                 "value": 3
               },
               {
-                "color": "red",
+                "color": "semi-dark-red",
                 "value": 10
               }
             ]
@@ -789,155 +1185,28 @@
         }
       },
       "gridPos": {
-        "h": 9,
-        "w": 8,
-        "x": 0,
-        "y": 16
-      },
-      "id": 8,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.3.1",
-      "targets": [
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "time_series",
-          "rawQuery": true,
-          "rawSql": "-- The six MQ gas sensors, each as a multiple of its clean-air reading (1 = clean air).\r\nSELECT v.ts AS time,\r\n       f.label AS metric,\r\n       v.num_value / f.clean_ppm::float8 AS value\r\nFROM reading_value v\r\nJOIN (VALUES\r\n        ('mqboard-mq7',   'CO (MQ7)',           0.65)) AS f(source, label, clean_ppm)\r\n  ON f.source = v.source\r\nWHERE $__timeFilter(v.ts)\r\n  AND v.station = 'mstn-2b'\r\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\r\n  AND v.ts_src <> 'estimated'\r\nORDER BY v.ts",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "timeFrom": "24h",
-      "title": "Carbon Monoxide",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "measure-station-db"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMax": 2.5,
-            "axisSoftMin": 0.5,
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "scheme",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 3,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": 300000,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "dashed"
-            }
-          },
-          "decimals": 1,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "dark-green",
-                "value": 0
-              },
-              {
-                "color": "green",
-                "value": 1
-              },
-              {
-                "color": "#EAB839",
-                "value": 1.5
-              },
-              {
-                "color": "orange",
-                "value": 3
-              },
-              {
-                "color": "red",
-                "value": 10
-              }
-            ]
-          },
-          "unit": "suffix:x"
-        }
-      },
-      "gridPos": {
-        "h": 9,
+        "h": 4,
         "w": 8,
         "x": 8,
-        "y": 16
+        "y": 23
       },
-      "id": 9,
+      "id": 16,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
       },
       "pluginVersion": "13.3.1",
       "targets": [
@@ -948,9 +1217,9 @@
             "uid": "measure-station-db"
           },
           "editorMode": "code",
-          "format": "time_series",
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "-- The six MQ gas sensors, each as a multiple of its clean-air reading (1 = clean air).\r\nSELECT v.ts AS time,\r\n       f.label AS metric,\r\n       v.num_value / f.clean_ppm::float8 AS value\r\nFROM reading_value v\r\nJOIN (VALUES\r\n        ('mqboard-mq8',   'Hydrogen (MQ8)',    53.0)) AS f(source, label, clean_ppm)\r\n  ON f.source = v.source\r\nWHERE $__timeFilter(v.ts)\r\n  AND v.station = 'mstn-2b'\r\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\r\n  AND v.ts_src <> 'estimated'\r\nORDER BY v.ts",
+          "rawSql": "-- Highest and lowest (MQ4) in the last 24 hours, as a multiple of clean air.\r\nSELECT min(num_value) / 16.0 AS \"24h Min\",\r\n       max(num_value) / 16.0 AS \"24h Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'mqboard-mq4' AND section = 'values' AND key = 'concentration_ppm'\r\n  AND ts_src <> 'estimated'",
           "refId": "A",
           "sql": {
             "columns": [
@@ -971,9 +1240,9 @@
           }
         }
       ],
-      "timeFrom": "24h",
-      "title": "Hydrogen",
-      "type": "timeseries"
+      "title": "Methane",
+      "transparent": true,
+      "type": "stat"
     },
     {
       "datasource": {
@@ -983,58 +1252,19 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "fixedColor": "#ad46ff",
             "mode": "thresholds"
           },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMax": 2.5,
-            "axisSoftMin": 0.5,
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "scheme",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 3,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": 300000,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "dashed"
-            }
-          },
-          "decimals": 1,
+          "decimals": 2,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "dark-green",
+                "color": "green",
                 "value": 0
               },
               {
-                "color": "green",
-                "value": 1
-              },
-              {
-                "color": "#EAB839",
+                "color": "yellow",
                 "value": 1.5
               },
               {
@@ -1042,7 +1272,7 @@
                 "value": 3
               },
               {
-                "color": "red",
+                "color": "semi-dark-red",
                 "value": 10
               }
             ]
@@ -1051,24 +1281,28 @@
         }
       },
       "gridPos": {
-        "h": 9,
+        "h": 4,
         "w": 8,
         "x": 16,
-        "y": 16
+        "y": 23
       },
-      "id": 10,
+      "id": 17,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
       },
       "pluginVersion": "13.3.1",
       "targets": [
@@ -1079,9 +1313,9 @@
             "uid": "measure-station-db"
           },
           "editorMode": "code",
-          "format": "time_series",
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "-- The six MQ gas sensors, each as a multiple of its clean-air reading (1 = clean air).\r\nSELECT v.ts AS time,\r\n       f.label AS metric,\r\n       v.num_value / f.clean_ppm::float8 AS value\r\nFROM reading_value v\r\nJOIN (VALUES\r\n        ('mqboard-mq135', 'Ammonia (MQ135)',    4.3)) AS f(source, label, clean_ppm)\r\n  ON f.source = v.source\r\nWHERE $__timeFilter(v.ts)\r\n  AND v.station = 'mstn-2b'\r\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\r\n  AND v.ts_src <> 'estimated'\r\nORDER BY v.ts",
+          "rawSql": "-- Highest and lowest (MQ5) in the last 24 hours, as a multiple of clean air.\r\nSELECT min(num_value) / 0.85 AS \"24h Min\",\r\n       max(num_value) / 0.85 AS \"24h Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'mqboard-mq5' AND section = 'values' AND key = 'concentration_ppm'\r\n  AND ts_src <> 'estimated'",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1102,9 +1336,9 @@
           }
         }
       ],
-      "timeFrom": "24h",
-      "title": "Ammonia",
-      "type": "timeseries"
+      "title": "LPG",
+      "transparent": true,
+      "type": "stat"
     }
   ],
   "preload": false,
@@ -1129,6 +1363,6 @@
     ]
   },
   "timezone": "Australia/Melbourne",
-  "title": "MQ Gas",
+  "title": "Smoke Methane LPG",
   "uid": "adz7l8w"
 }

@@ -417,7 +417,12 @@ display and its button, on the Pi only).
    [TV dashboards in a playlist](docs/tv-dashboards.md), and
    [copies kept in this repo](docs/saving-dashboards.md)): the TV dashboards, the
    averages, and later the dashboards for phones.
+   **To do:**
+   - dashboards for phones (in a **Phone** folder in Grafana).
 4. **TV:** TV page, remote page and presets (the kiosk then shows the TV page).
+   **To do:**
+   - controlling the TV dashboards from a phone (the remote page);
+   - a music player for background music on the TV.
 5. **Revisit alerts** (deferred; see [Alerts](#alerts-deferred)), including whether to
    notify someone away from home.
 6. **Backups** ([written](docs/backups.md), not yet run): nightly to the NAS, and from
