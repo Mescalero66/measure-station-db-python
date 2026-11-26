@@ -161,6 +161,66 @@
           "color": {
             "mode": "thresholds"
           },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 11
+      },
+      "id": 16,
+      "options": {
+        "inlineEditing": true,
+        "panZoom": false,
+        "showAdvancedTypes": true,
+        "tooltip": {
+          "disableForOneClick": false,
+          "mode": "single"
+        },
+        "zoomToContent": false
+      },
+      "pluginVersion": "13.4.0",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "builder",
+          "format": "table",
+          "rawSql": "",
+          "refId": "A"
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "canvas"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
           "displayName": "CO2",
           "max": 650,
           "min": 400,
@@ -192,7 +252,7 @@
         "h": 6,
         "w": 5,
         "x": 0,
-        "y": 11
+        "y": 12
       },
       "id": 8,
       "options": {
@@ -299,7 +359,7 @@
         "h": 6,
         "w": 4,
         "x": 5,
-        "y": 11
+        "y": 12
       },
       "id": 7,
       "options": {
@@ -417,7 +477,7 @@
         "h": 6,
         "w": 3,
         "x": 9,
-        "y": 11
+        "y": 12
       },
       "id": 12,
       "options": {
@@ -535,7 +595,7 @@
         "h": 6,
         "w": 3,
         "x": 12,
-        "y": 11
+        "y": 12
       },
       "id": 11,
       "options": {
@@ -653,7 +713,7 @@
         "h": 6,
         "w": 3,
         "x": 15,
-        "y": 11
+        "y": 12
       },
       "id": 13,
       "options": {
@@ -771,7 +831,7 @@
         "h": 6,
         "w": 3,
         "x": 18,
-        "y": 11
+        "y": 12
       },
       "id": 14,
       "options": {
@@ -889,7 +949,7 @@
         "h": 6,
         "w": 3,
         "x": 21,
-        "y": 11
+        "y": 12
       },
       "id": 15,
       "options": {
@@ -1002,10 +1062,10 @@
         }
       },
       "gridPos": {
-        "h": 7,
+        "h": 8,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 18
       },
       "id": 4,
       "options": {

@@ -169,7 +169,7 @@
         }
       },
       "gridPos": {
-        "h": 11,
+        "h": 9,
         "w": 4,
         "x": 11,
         "y": 0
@@ -459,17 +459,17 @@
         }
       },
       "gridPos": {
-        "h": 2,
+        "h": 3,
         "w": 4,
         "x": 11,
-        "y": 11
+        "y": 9
       },
       "id": 7,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "auto",
-        "orientation": "auto",
+        "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
@@ -479,7 +479,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value_and_name",
         "wideLayout": true
       },
       "pluginVersion": "13.3.1",
@@ -493,7 +493,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "-- Highest and lowest air temperature (MCP9808) in the last 24 hours.\r\nSELECT min(num_value) AS \"24 Hr Min\",\r\n       max(num_value) AS \"24 Hr Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'temperature' AND section = 'values' AND key = 'temperature_c'\r\n  AND ts_src <> 'estimated'",
+          "rawSql": "-- Highest and lowest air temperature (MCP9808) in the last 24 hours.\r\nSELECT min(num_value) AS \"24h Min\",\r\n       max(num_value) AS \"24h Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'temperature' AND section = 'values' AND key = 'temperature_c'\r\n  AND ts_src <> 'estimated'",
           "refId": "A",
           "sql": {
             "columns": [
@@ -517,6 +517,66 @@
       "title": "",
       "transparent": true,
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "id": 9,
+      "options": {
+        "inlineEditing": true,
+        "panZoom": false,
+        "showAdvancedTypes": true,
+        "tooltip": {
+          "disableForOneClick": false,
+          "mode": "single"
+        },
+        "zoomToContent": false
+      },
+      "pluginVersion": "13.4.0",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "builder",
+          "format": "table",
+          "rawSql": "",
+          "refId": "A"
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "canvas"
     },
     {
       "datasource": {
@@ -586,7 +646,7 @@
         "h": 11,
         "w": 11,
         "x": 0,
-        "y": 13
+        "y": 14
       },
       "id": 4,
       "options": {
@@ -687,10 +747,10 @@
         }
       },
       "gridPos": {
-        "h": 9,
+        "h": 7,
         "w": 4,
         "x": 11,
-        "y": 13
+        "y": 14
       },
       "id": 6,
       "options": {
@@ -876,7 +936,7 @@
         "h": 11,
         "w": 9,
         "x": 15,
-        "y": 13
+        "y": 14
       },
       "id": 5,
       "options": {
@@ -963,7 +1023,7 @@
             "fixedColor": "#ad46ff",
             "mode": "continuous-YlBl"
           },
-          "decimals": 1,
+          "decimals": 0,
           "max": 95,
           "min": 10,
           "thresholds": {
@@ -1003,17 +1063,17 @@
         }
       },
       "gridPos": {
-        "h": 2,
+        "h": 3,
         "w": 4,
         "x": 11,
-        "y": 22
+        "y": 21
       },
       "id": 8,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "auto",
-        "orientation": "auto",
+        "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
@@ -1023,7 +1083,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value_and_name",
         "wideLayout": true
       },
       "pluginVersion": "13.3.1",
@@ -1037,7 +1097,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "-- Highest and lowest humidity in the last 24 hours.\r\nSELECT min(num_value) AS \"24 Hr Min\",\r\n       max(num_value) AS \"24 Hr Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'humidity' AND section = 'values' AND key = 'humidity_pct'\r\n  AND ts_src <> 'estimated'",
+          "rawSql": "-- Highest and lowest humidity in the last 24 hours.\r\nSELECT min(num_value) AS \"24h Min\",\r\n       max(num_value) AS \"24hr Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'humidity' AND section = 'values' AND key = 'humidity_pct'\r\n  AND ts_src <> 'estimated'",
           "refId": "A",
           "sql": {
             "columns": [
