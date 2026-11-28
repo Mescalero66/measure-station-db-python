@@ -252,10 +252,12 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "#ad46ff",
             "mode": "thresholds"
           },
           "decimals": 0,
+          "displayName": "Barometer",
+          "max": 1040,
+          "min": 980,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -270,6 +272,10 @@
               {
                 "color": "#EAB839",
                 "value": 1020
+              },
+              {
+                "color": "orange",
+                "value": 1030
               }
             ]
           },
@@ -277,18 +283,24 @@
         }
       },
       "gridPos": {
-        "h": 4,
+        "h": 9,
         "w": 4,
         "x": 11,
         "y": 0
       },
-      "id": 12,
+      "id": 3,
       "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "percentChangeColorMode": "standard",
+        "barShape": "flat",
+        "barWidthFactor": 0.6,
+        "effects": {
+          "barGlow": false,
+          "centerGlow": false,
+          "gradient": true
+        },
+        "endpointMarker": "point",
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -296,9 +308,14 @@
           "fields": "",
           "values": false
         },
-        "showPercentChange": false,
-        "textMode": "value_and_name",
-        "wideLayout": true
+        "segmentCount": 63,
+        "segmentSpacing": 0.5,
+        "shape": "gauge",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "sparkline": false,
+        "textMode": "value_and_name"
       },
       "pluginVersion": "13.3.1",
       "targets": [
@@ -311,8 +328,8 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "-- Highest and lowest air temperature (MCP9808) in the last 24 hours.\r\nSELECT min(num_value) AS \"Min\",\r\n       max(num_value) AS \"Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'barometer' AND section = 'values' AND key = 'pressure_hpa'\r\n  AND ts_src <> 'estimated'",
-          "refId": "A",
+          "rawSql": "SELECT num_value AS pressure\r\nFROM reading_value\r\nWHERE station = 'mstn-2b'\r\n  AND source = 'barometer' AND section = 'values' AND key = 'pressure_hpa'\r\n  AND ts_src <> 'estimated'\r\n  AND ts > now() - INTERVAL '15 minutes'\r\nORDER BY ts DESC\r\nLIMIT 1",
+          "refId": "Pressure",
           "sql": {
             "columns": [
               {
@@ -332,9 +349,9 @@
           }
         }
       ],
-      "title": "24 Hour",
+      "title": "",
       "transparent": true,
-      "type": "stat"
+      "type": "gauge"
     },
     {
       "datasource": {
@@ -566,12 +583,10 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "fixedColor": "#ad46ff",
             "mode": "thresholds"
           },
           "decimals": 0,
-          "displayName": "Barometer",
-          "max": 1040,
-          "min": 980,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -586,10 +601,6 @@
               {
                 "color": "#EAB839",
                 "value": 1020
-              },
-              {
-                "color": "orange",
-                "value": 1030
               }
             ]
           },
@@ -597,12 +608,95 @@
         }
       },
       "gridPos": {
-        "h": 10,
+        "h": 4,
         "w": 4,
         "x": 11,
-        "y": 4
+        "y": 9
       },
-      "id": 3,
+      "id": 12,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "-- Highest and lowest air temperature (MCP9808) in the last 24 hours.\r\nSELECT min(num_value) AS \"Min\",\r\n       max(num_value) AS \"Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'barometer' AND section = 'values' AND key = 'pressure_hpa'\r\n  AND ts_src <> 'estimated'",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "24 Hour",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-plasma"
+          },
+          "displayName": "Illuminance",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "lux"
+        }
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 11,
+        "y": 13
+      },
+      "id": 6,
       "options": {
         "barShape": "flat",
         "barWidthFactor": 0.6,
@@ -642,8 +736,37 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT num_value AS pressure\r\nFROM reading_value\r\nWHERE station = 'mstn-2b'\r\n  AND source = 'barometer' AND section = 'values' AND key = 'pressure_hpa'\r\n  AND ts_src <> 'estimated'\r\n  AND ts > now() - INTERVAL '15 minutes'\r\nORDER BY ts DESC\r\nLIMIT 1",
-          "refId": "Pressure",
+          "rawSql": "SELECT num_value AS lux\r\nFROM reading_value\r\nWHERE station = 'mstn-2b'\r\n  AND source = 'light' AND section = 'values' AND key = 'illuminance_lux'\r\n  AND ts_src <> 'estimated'\r\n  AND ts > now() - INTERVAL '15 minutes'\r\nORDER BY ts DESC\r\nLIMIT 1",
+          "refId": "Lux",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT round(min(num_value)::numeric, 1) AS min,\r\n       round(max(num_value)::numeric, 1) AS max\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'light' AND section = 'values' AND key = 'illuminance_lux'\r\n  AND ts_src <> 'estimated'",
+          "refId": "Ave",
           "sql": {
             "columns": [
               {
@@ -664,6 +787,28 @@
         }
       ],
       "title": "",
+      "transformations": [
+        {
+          "id": "configFromData",
+          "options": {
+            "applyTo": {
+              "id": "byName",
+              "options": "lux"
+            },
+            "configRefId": "Ave",
+            "mappings": [
+              {
+                "fieldName": "min",
+                "handlerKey": "min"
+              },
+              {
+                "fieldName": "max",
+                "handlerKey": "max"
+              }
+            ]
+          }
+        }
+      ],
       "transparent": true,
       "type": "gauge"
     },
@@ -884,98 +1029,6 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "#ad46ff",
-            "mode": "continuous-plasma"
-          },
-          "decimals": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              },
-              {
-                "color": "green",
-                "value": 1005
-              },
-              {
-                "color": "#EAB839",
-                "value": 1020
-              }
-            ]
-          },
-          "unit": "lux"
-        }
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 11,
-        "y": 14
-      },
-      "id": 13,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "13.3.1",
-      "targets": [
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "-- Highest and lowest air temperature (MCP9808) in the last 24 hours.\r\nSELECT min(num_value) AS \"Min\",\r\n       max(num_value) AS \"Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'light' AND section = 'values' AND key = 'illuminance_lux'\r\n  AND ts_src <> 'estimated'",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "24 Hour",
-      "transparent": true,
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "measure-station-db"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
             "mode": "continuous-plasma",
             "seriesBy": "last"
           },
@@ -1180,15 +1233,24 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "fixedColor": "#ad46ff",
             "mode": "continuous-plasma"
           },
-          "displayName": "Illuminance",
+          "decimals": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1005
+              },
+              {
+                "color": "#EAB839",
+                "value": 1020
               }
             ]
           },
@@ -1196,24 +1258,18 @@
         }
       },
       "gridPos": {
-        "h": 6,
+        "h": 4,
         "w": 4,
         "x": 11,
-        "y": 18
+        "y": 20
       },
-      "id": 6,
+      "id": 13,
       "options": {
-        "barShape": "flat",
-        "barWidthFactor": 0.6,
-        "effects": {
-          "barGlow": false,
-          "centerGlow": false,
-          "gradient": true
-        },
-        "endpointMarker": "point",
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -1221,14 +1277,9 @@
           "fields": "",
           "values": false
         },
-        "segmentCount": 63,
-        "segmentSpacing": 0.5,
-        "shape": "gauge",
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto",
-        "sparkline": false,
-        "textMode": "value_and_name"
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
       },
       "pluginVersion": "13.3.1",
       "targets": [
@@ -1241,37 +1292,8 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT num_value AS lux\r\nFROM reading_value\r\nWHERE station = 'mstn-2b'\r\n  AND source = 'light' AND section = 'values' AND key = 'illuminance_lux'\r\n  AND ts_src <> 'estimated'\r\n  AND ts > now() - INTERVAL '15 minutes'\r\nORDER BY ts DESC\r\nLIMIT 1",
-          "refId": "Lux",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT round(min(num_value)::numeric, 1) AS min,\r\n       round(max(num_value)::numeric, 1) AS max\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'light' AND section = 'values' AND key = 'illuminance_lux'\r\n  AND ts_src <> 'estimated'",
-          "refId": "Ave",
+          "rawSql": "-- Highest and lowest air temperature (MCP9808) in the last 24 hours.\r\nSELECT min(num_value) AS \"Min\",\r\n       max(num_value) AS \"Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'light' AND section = 'values' AND key = 'illuminance_lux'\r\n  AND ts_src <> 'estimated'",
+          "refId": "A",
           "sql": {
             "columns": [
               {
@@ -1291,31 +1313,9 @@
           }
         }
       ],
-      "title": "",
-      "transformations": [
-        {
-          "id": "configFromData",
-          "options": {
-            "applyTo": {
-              "id": "byName",
-              "options": "lux"
-            },
-            "configRefId": "Ave",
-            "mappings": [
-              {
-                "fieldName": "min",
-                "handlerKey": "min"
-              },
-              {
-                "fieldName": "max",
-                "handlerKey": "max"
-              }
-            ]
-          }
-        }
-      ],
+      "title": "24 Hour",
       "transparent": true,
-      "type": "gauge"
+      "type": "stat"
     },
     {
       "datasource": {

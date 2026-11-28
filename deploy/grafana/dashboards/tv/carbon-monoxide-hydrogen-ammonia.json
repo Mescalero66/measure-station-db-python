@@ -37,23 +37,124 @@
               {
                 "color": "green",
                 "value": 0
-              },
-              {
-                "color": "#EAB839",
-                "value": 1.5
-              },
-              {
-                "color": "orange",
-                "value": 3
-              },
-              {
-                "color": "red",
-                "value": 10
               }
             ]
           },
-          "unit": "suffix:x"
-        }
+          "unit": "ppm"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Carbon Monoxide",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 2
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 4
+                    },
+                    {
+                      "color": "orange",
+                      "value": 9
+                    },
+                    {
+                      "color": "dark-red",
+                      "value": 35
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Hydrogen",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 100
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 200
+                    },
+                    {
+                      "color": "orange",
+                      "value": 500
+                    },
+                    {
+                      "color": "dark-red",
+                      "value": 1000
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Ammonia",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 10
+                    },
+                    {
+                      "color": "#EAB839",
+                      "value": 15
+                    },
+                    {
+                      "color": "orange",
+                      "value": 25
+                    },
+                    {
+                      "color": "dark-red",
+                      "value": 35
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 3,
@@ -90,7 +191,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "-- The six MQ gas sensors, each as a multiple of its clean-air reading (1 = clean air).\r\nSELECT\r\n  v.ts AS time,\r\n  f.label AS metric,\r\n  v.num_value / f.clean_ppm :: float8 AS value\r\nFROM\r\n  reading_value v\r\n  JOIN (\r\n    VALUES\r\n      (\r\n        'mqboard-mq7',\r\n        'Carbon Monoxide (MQ7)',\r\n        0.65\r\n      ),\r\n      ('mqboard-mq8', 'Hydrogen (MQ8)', 53.0),\r\n      ('mqboard-mq135', 'Ammonia (MQ135)', 4.3)\r\n  ) AS f(source, label, clean_ppm) ON f.source = v.source\r\nWHERE\r\n  $__timeFilter(v.ts)\r\n  AND v.station = 'mstn-2b'\r\n  AND v.section = 'values'\r\n  AND v.key = 'concentration_ppm'\r\n  AND v.ts_src <> 'estimated'\r\nORDER BY\r\n  v.ts",
+          "rawSql": "-- Carbon monoxide, hydrogen and ammonia (MQ7, MQ8, MQ135), in ppm.\nSELECT v.ts AS time,\n       f.label AS metric,\n       v.num_value AS value\nFROM reading_value v\nJOIN (VALUES\n        ('mqboard-mq7',   'Carbon Monoxide (MQ7)'),\n        ('mqboard-mq8',   'Hydrogen (MQ8)'),\n        ('mqboard-mq135', 'Ammonia (MQ135)')) AS f(source, label)\n  ON f.source = v.source\nWHERE $__timeFilter(v.ts)\n  AND v.station = 'mstn-2b'\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\n  AND v.ts_src <> 'estimated'\nORDER BY v.ts",
           "refId": "A",
           "sql": {
             "columns": [
@@ -150,74 +251,13 @@
           "color": {
             "mode": "thresholds"
           },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        }
-      },
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 3
-      },
-      "id": 11,
-      "options": {
-        "inlineEditing": true,
-        "panZoom": false,
-        "showAdvancedTypes": true,
-        "tooltip": {
-          "disableForOneClick": false,
-          "mode": "single"
-        },
-        "zoomToContent": false
-      },
-      "pluginVersion": "13.4.0",
-      "targets": [
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "builder",
-          "format": "table",
-          "rawSql": "",
-          "refId": "A"
-        }
-      ],
-      "title": "",
-      "transparent": true,
-      "type": "canvas"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "measure-station-db"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
           "custom": {
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 2.5,
-            "axisSoftMin": 0.5,
+            "axisSoftMax": 2,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
@@ -246,7 +286,6 @@
               "mode": "dashed"
             }
           },
-          "decimals": 1,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -256,30 +295,30 @@
               },
               {
                 "color": "green",
-                "value": 1
+                "value": 2
               },
               {
                 "color": "#EAB839",
-                "value": 1.5
+                "value": 4
               },
               {
                 "color": "orange",
-                "value": 3
+                "value": 9
               },
               {
-                "color": "red",
-                "value": 10
+                "color": "dark-red",
+                "value": 35
               }
             ]
           },
-          "unit": "suffix:x"
+          "unit": "ppm"
         }
       },
       "gridPos": {
         "h": 9,
         "w": 8,
         "x": 0,
-        "y": 4
+        "y": 3
       },
       "id": 8,
       "options": {
@@ -306,7 +345,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "-- The six MQ gas sensors, each as a multiple of its clean-air reading (1 = clean air).\r\nSELECT v.ts AS time,\r\n       f.label AS metric,\r\n       v.num_value / f.clean_ppm::float8 AS value\r\nFROM reading_value v\r\nJOIN (VALUES\r\n        ('mqboard-mq7',   'CO (MQ7)',           0.65)) AS f(source, label, clean_ppm)\r\n  ON f.source = v.source\r\nWHERE $__timeFilter(v.ts)\r\n  AND v.station = 'mstn-2b'\r\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\r\n  AND v.ts_src <> 'estimated'\r\nORDER BY v.ts",
+          "rawSql": "-- Carbon Monoxide (MQ7), in ppm.\nSELECT v.ts AS time,\n       'Carbon Monoxide (MQ7)' AS metric,\n       v.num_value AS value\nFROM reading_value v\nWHERE $__timeFilter(v.ts)\n  AND v.station = 'mstn-2b' AND v.source = 'mqboard-mq7'\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\n  AND v.ts_src <> 'estimated'\nORDER BY v.ts",
           "refId": "A",
           "sql": {
             "columns": [
@@ -329,6 +368,7 @@
       ],
       "timeFrom": "2h",
       "title": "Carbon Monoxide",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -347,8 +387,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 2.5,
-            "axisSoftMin": 0.5,
+            "axisSoftMax": 100,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
@@ -377,7 +416,6 @@
               "mode": "dashed"
             }
           },
-          "decimals": 1,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -387,30 +425,30 @@
               },
               {
                 "color": "green",
-                "value": 1
+                "value": 100
               },
               {
                 "color": "#EAB839",
-                "value": 1.5
+                "value": 200
               },
               {
                 "color": "orange",
-                "value": 3
+                "value": 500
               },
               {
-                "color": "red",
-                "value": 10
+                "color": "dark-red",
+                "value": 1000
               }
             ]
           },
-          "unit": "suffix:x"
+          "unit": "ppm"
         }
       },
       "gridPos": {
         "h": 9,
         "w": 8,
         "x": 8,
-        "y": 4
+        "y": 3
       },
       "id": 9,
       "options": {
@@ -437,7 +475,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "-- The six MQ gas sensors, each as a multiple of its clean-air reading (1 = clean air).\r\nSELECT v.ts AS time,\r\n       f.label AS metric,\r\n       v.num_value / f.clean_ppm::float8 AS value\r\nFROM reading_value v\r\nJOIN (VALUES\r\n        ('mqboard-mq8',   'Hydrogen (MQ8)',    53.0)) AS f(source, label, clean_ppm)\r\n  ON f.source = v.source\r\nWHERE $__timeFilter(v.ts)\r\n  AND v.station = 'mstn-2b'\r\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\r\n  AND v.ts_src <> 'estimated'\r\nORDER BY v.ts",
+          "rawSql": "-- Hydrogen (MQ8), in ppm.\nSELECT v.ts AS time,\n       'Hydrogen (MQ8)' AS metric,\n       v.num_value AS value\nFROM reading_value v\nWHERE $__timeFilter(v.ts)\n  AND v.station = 'mstn-2b' AND v.source = 'mqboard-mq8'\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\n  AND v.ts_src <> 'estimated'\nORDER BY v.ts",
           "refId": "A",
           "sql": {
             "columns": [
@@ -460,6 +498,7 @@
       ],
       "timeFrom": "2h",
       "title": "Hydrogen",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -478,8 +517,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 2.5,
-            "axisSoftMin": 0.5,
+            "axisSoftMax": 10,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
@@ -508,7 +546,6 @@
               "mode": "dashed"
             }
           },
-          "decimals": 1,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -518,30 +555,30 @@
               },
               {
                 "color": "green",
-                "value": 1
+                "value": 10
               },
               {
                 "color": "#EAB839",
-                "value": 1.5
+                "value": 15
               },
               {
                 "color": "orange",
-                "value": 3
+                "value": 25
               },
               {
-                "color": "red",
-                "value": 10
+                "color": "dark-red",
+                "value": 35
               }
             ]
           },
-          "unit": "suffix:x"
+          "unit": "ppm"
         }
       },
       "gridPos": {
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 4
+        "y": 3
       },
       "id": 10,
       "options": {
@@ -568,7 +605,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "-- The six MQ gas sensors, each as a multiple of its clean-air reading (1 = clean air).\r\nSELECT v.ts AS time,\r\n       f.label AS metric,\r\n       v.num_value / f.clean_ppm::float8 AS value\r\nFROM reading_value v\r\nJOIN (VALUES\r\n        ('mqboard-mq135', 'Ammonia (MQ135)',    4.3)) AS f(source, label, clean_ppm)\r\n  ON f.source = v.source\r\nWHERE $__timeFilter(v.ts)\r\n  AND v.station = 'mstn-2b'\r\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\r\n  AND v.ts_src <> 'estimated'\r\nORDER BY v.ts",
+          "rawSql": "-- Ammonia (MQ135), in ppm.\nSELECT v.ts AS time,\n       'Ammonia (MQ135)' AS metric,\n       v.num_value AS value\nFROM reading_value v\nWHERE $__timeFilter(v.ts)\n  AND v.station = 'mstn-2b' AND v.source = 'mqboard-mq135'\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\n  AND v.ts_src <> 'estimated'\nORDER BY v.ts",
           "refId": "A",
           "sql": {
             "columns": [
@@ -591,6 +628,7 @@
       ],
       "timeFrom": "2h",
       "title": "Ammonia",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -622,7 +660,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 13
+        "y": 12
       },
       "id": 18,
       "options": {
@@ -669,8 +707,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 2.5,
-            "axisSoftMin": 0.5,
+            "axisSoftMax": 4,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
@@ -699,7 +736,6 @@
               "mode": "dashed"
             }
           },
-          "decimals": 1,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -709,30 +745,30 @@
               },
               {
                 "color": "green",
-                "value": 1
+                "value": 2
               },
               {
                 "color": "#EAB839",
-                "value": 1.5
+                "value": 4
               },
               {
                 "color": "orange",
-                "value": 3
+                "value": 9
               },
               {
-                "color": "red",
-                "value": 10
+                "color": "dark-red",
+                "value": 35
               }
             ]
           },
-          "unit": "suffix:x"
+          "unit": "ppm"
         }
       },
       "gridPos": {
         "h": 9,
         "w": 8,
         "x": 0,
-        "y": 14
+        "y": 13
       },
       "id": 12,
       "options": {
@@ -759,7 +795,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "-- The six MQ gas sensors, each as a multiple of its clean-air reading (1 = clean air).\r\nSELECT v.ts AS time,\r\n       f.label AS metric,\r\n       v.num_value / f.clean_ppm::float8 AS value\r\nFROM reading_value v\r\nJOIN (VALUES\r\n        ('mqboard-mq7',   'CO (MQ7)',           0.65)) AS f(source, label, clean_ppm)\r\n  ON f.source = v.source\r\nWHERE $__timeFilter(v.ts)\r\n  AND v.station = 'mstn-2b'\r\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\r\n  AND v.ts_src <> 'estimated'\r\nORDER BY v.ts",
+          "rawSql": "-- Carbon Monoxide (MQ7), in ppm.\nSELECT v.ts AS time,\n       'Carbon Monoxide (MQ7)' AS metric,\n       v.num_value AS value\nFROM reading_value v\nWHERE $__timeFilter(v.ts)\n  AND v.station = 'mstn-2b' AND v.source = 'mqboard-mq7'\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\n  AND v.ts_src <> 'estimated'\nORDER BY v.ts",
           "refId": "A",
           "sql": {
             "columns": [
@@ -782,6 +818,7 @@
       ],
       "timeFrom": "24h",
       "title": "Carbon Monoxide",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -800,8 +837,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 2.5,
-            "axisSoftMin": 0.5,
+            "axisSoftMax": 200,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
@@ -830,7 +866,6 @@
               "mode": "dashed"
             }
           },
-          "decimals": 1,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -840,30 +875,30 @@
               },
               {
                 "color": "green",
-                "value": 1
+                "value": 100
               },
               {
                 "color": "#EAB839",
-                "value": 1.5
+                "value": 200
               },
               {
                 "color": "orange",
-                "value": 3
+                "value": 500
               },
               {
-                "color": "red",
-                "value": 10
+                "color": "dark-red",
+                "value": 1000
               }
             ]
           },
-          "unit": "suffix:x"
+          "unit": "ppm"
         }
       },
       "gridPos": {
         "h": 9,
         "w": 8,
         "x": 8,
-        "y": 14
+        "y": 13
       },
       "id": 13,
       "options": {
@@ -890,7 +925,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "-- The six MQ gas sensors, each as a multiple of its clean-air reading (1 = clean air).\r\nSELECT v.ts AS time,\r\n       f.label AS metric,\r\n       v.num_value / f.clean_ppm::float8 AS value\r\nFROM reading_value v\r\nJOIN (VALUES\r\n        ('mqboard-mq8',   'Hydrogen (MQ8)',    53.0)) AS f(source, label, clean_ppm)\r\n  ON f.source = v.source\r\nWHERE $__timeFilter(v.ts)\r\n  AND v.station = 'mstn-2b'\r\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\r\n  AND v.ts_src <> 'estimated'\r\nORDER BY v.ts",
+          "rawSql": "-- Hydrogen (MQ8), in ppm.\nSELECT v.ts AS time,\n       'Hydrogen (MQ8)' AS metric,\n       v.num_value AS value\nFROM reading_value v\nWHERE $__timeFilter(v.ts)\n  AND v.station = 'mstn-2b' AND v.source = 'mqboard-mq8'\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\n  AND v.ts_src <> 'estimated'\nORDER BY v.ts",
           "refId": "A",
           "sql": {
             "columns": [
@@ -913,6 +948,7 @@
       ],
       "timeFrom": "24h",
       "title": "Hydrogen",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -931,8 +967,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 2.5,
-            "axisSoftMin": 0.5,
+            "axisSoftMax": 15,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
@@ -961,7 +996,6 @@
               "mode": "dashed"
             }
           },
-          "decimals": 1,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -971,30 +1005,30 @@
               },
               {
                 "color": "green",
-                "value": 1
+                "value": 10
               },
               {
                 "color": "#EAB839",
-                "value": 1.5
+                "value": 15
               },
               {
                 "color": "orange",
-                "value": 3
+                "value": 25
               },
               {
-                "color": "red",
-                "value": 10
+                "color": "dark-red",
+                "value": 35
               }
             ]
           },
-          "unit": "suffix:x"
+          "unit": "ppm"
         }
       },
       "gridPos": {
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 14
+        "y": 13
       },
       "id": 14,
       "options": {
@@ -1021,7 +1055,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "-- The six MQ gas sensors, each as a multiple of its clean-air reading (1 = clean air).\r\nSELECT v.ts AS time,\r\n       f.label AS metric,\r\n       v.num_value / f.clean_ppm::float8 AS value\r\nFROM reading_value v\r\nJOIN (VALUES\r\n        ('mqboard-mq135', 'Ammonia (MQ135)',    4.3)) AS f(source, label, clean_ppm)\r\n  ON f.source = v.source\r\nWHERE $__timeFilter(v.ts)\r\n  AND v.station = 'mstn-2b'\r\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\r\n  AND v.ts_src <> 'estimated'\r\nORDER BY v.ts",
+          "rawSql": "-- Ammonia (MQ135), in ppm.\nSELECT v.ts AS time,\n       'Ammonia (MQ135)' AS metric,\n       v.num_value AS value\nFROM reading_value v\nWHERE $__timeFilter(v.ts)\n  AND v.station = 'mstn-2b' AND v.source = 'mqboard-mq135'\n  AND v.section = 'values' AND v.key = 'concentration_ppm'\n  AND v.ts_src <> 'estimated'\nORDER BY v.ts",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1044,6 +1078,7 @@
       ],
       "timeFrom": "24h",
       "title": "Ammonia",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -1062,31 +1097,35 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "dark-green",
                 "value": 0
               },
               {
-                "color": "yellow",
-                "value": 1.5
+                "color": "green",
+                "value": 2
+              },
+              {
+                "color": "#EAB839",
+                "value": 4
               },
               {
                 "color": "orange",
-                "value": 3
+                "value": 9
               },
               {
-                "color": "semi-dark-red",
-                "value": 10
+                "color": "dark-red",
+                "value": 35
               }
             ]
           },
-          "unit": "suffix:x"
+          "unit": "ppm"
         }
       },
       "gridPos": {
-        "h": 4,
+        "h": 3,
         "w": 8,
         "x": 0,
-        "y": 23
+        "y": 22
       },
       "id": 15,
       "options": {
@@ -1117,7 +1156,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "-- Highest and lowest smoke reading (MQ2) in the last 24 hours, as a multiple of clean air.\r\nSELECT min(num_value) / 0.65 AS \"24h Min\",\r\n       max(num_value) / 0.65 AS \"24h Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'mqboard-mq7' AND section = 'values' AND key = 'concentration_ppm'\r\n  AND ts_src <> 'estimated'",
+          "rawSql": "-- Highest and lowest carbon monoxide reading (MQ7) in the last 24 hours, in ppm.\nSELECT min(num_value) AS \"24h Min\",\n       max(num_value) AS \"24h Max\"\nFROM reading_value\nWHERE ts > now() - INTERVAL '24 hours'\n  AND station = 'mstn-2b'\n  AND source = 'mqboard-mq7' AND section = 'values' AND key = 'concentration_ppm'\n  AND ts_src <> 'estimated'",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1138,7 +1177,7 @@
           }
         }
       ],
-      "title": "Carbon Monoxide",
+      "title": "",
       "transparent": true,
       "type": "stat"
     },
@@ -1158,31 +1197,35 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "dark-green",
                 "value": 0
               },
               {
-                "color": "yellow",
-                "value": 1.5
+                "color": "green",
+                "value": 100
+              },
+              {
+                "color": "#EAB839",
+                "value": 200
               },
               {
                 "color": "orange",
-                "value": 3
+                "value": 500
               },
               {
-                "color": "semi-dark-red",
-                "value": 10
+                "color": "dark-red",
+                "value": 1000
               }
             ]
           },
-          "unit": "suffix:x"
+          "unit": "ppm"
         }
       },
       "gridPos": {
-        "h": 4,
+        "h": 3,
         "w": 8,
         "x": 8,
-        "y": 23
+        "y": 22
       },
       "id": 16,
       "options": {
@@ -1213,7 +1256,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "-- Highest and lowest smoke reading (MQ2) in the last 24 hours, as a multiple of clean air.\r\nSELECT min(num_value) / 53 AS \"24h Min\",\r\n       max(num_value) / 53 AS \"24h Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'mqboard-mq8' AND section = 'values' AND key = 'concentration_ppm'\r\n  AND ts_src <> 'estimated'",
+          "rawSql": "-- Highest and lowest hydrogen reading (MQ8) in the last 24 hours, in ppm.\nSELECT min(num_value) AS \"24h Min\",\n       max(num_value) AS \"24h Max\"\nFROM reading_value\nWHERE ts > now() - INTERVAL '24 hours'\n  AND station = 'mstn-2b'\n  AND source = 'mqboard-mq8' AND section = 'values' AND key = 'concentration_ppm'\n  AND ts_src <> 'estimated'",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1234,7 +1277,7 @@
           }
         }
       ],
-      "title": "Hydrogen",
+      "title": "",
       "transparent": true,
       "type": "stat"
     },
@@ -1254,31 +1297,35 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "dark-green",
                 "value": 0
               },
               {
-                "color": "yellow",
-                "value": 1.5
+                "color": "green",
+                "value": 10
+              },
+              {
+                "color": "#EAB839",
+                "value": 15
               },
               {
                 "color": "orange",
-                "value": 3
+                "value": 25
               },
               {
-                "color": "semi-dark-red",
-                "value": 10
+                "color": "dark-red",
+                "value": 35
               }
             ]
           },
-          "unit": "suffix:x"
+          "unit": "ppm"
         }
       },
       "gridPos": {
-        "h": 4,
+        "h": 3,
         "w": 8,
         "x": 16,
-        "y": 23
+        "y": 22
       },
       "id": 17,
       "options": {
@@ -1309,7 +1356,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "-- Highest and lowest smoke reading (MQ2) in the last 24 hours, as a multiple of clean air.\r\nSELECT min(num_value) / 4.3 AS \"24h Min\",\r\n       max(num_value) / 4.3 AS \"24h Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'mqboard-mq135' AND section = 'values' AND key = 'concentration_ppm'\r\n  AND ts_src <> 'estimated'",
+          "rawSql": "-- Highest and lowest ammonia reading (MQ135) in the last 24 hours, in ppm.\nSELECT min(num_value) AS \"24h Min\",\n       max(num_value) AS \"24h Max\"\nFROM reading_value\nWHERE ts > now() - INTERVAL '24 hours'\n  AND station = 'mstn-2b'\n  AND source = 'mqboard-mq135' AND section = 'values' AND key = 'concentration_ppm'\n  AND ts_src <> 'estimated'",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1330,7 +1377,7 @@
           }
         }
       ],
-      "title": "Ammonia",
+      "title": "",
       "transparent": true,
       "type": "stat"
     }
