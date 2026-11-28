@@ -28,59 +28,75 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "fixedColor": "#ad46ff",
             "mode": "thresholds"
           },
           "decimals": 1,
           "displayName": "PM 1.0",
-          "max": 60,
-          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 8
-              },
-              {
-                "color": "orange",
-                "value": 25
-              },
-              {
-                "color": "dark-red",
-                "value": 50
-              },
-              {
-                "color": "#72000d",
-                "value": 125
               }
             ]
           },
           "unit": "conμgm3"
-        }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm1",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 6
+                    },
+                    {
+                      "color": "orange",
+                      "value": 20
+                    },
+                    {
+                      "color": "red",
+                      "value": 45
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 6,
-        "w": 6,
+        "h": 2,
+        "w": 2,
         "x": 0,
         "y": 0
       },
-      "id": 3,
+      "id": 36,
       "options": {
-        "barShape": "flat",
-        "barWidthFactor": 0.6,
-        "effects": {
-          "barGlow": false,
-          "centerGlow": false,
-          "gradient": false
-        },
-        "endpointMarker": "point",
-        "minVizHeight": 75,
-        "minVizWidth": 75,
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -88,14 +104,9 @@
           "fields": "",
           "values": false
         },
-        "segmentCount": 63,
-        "segmentSpacing": 0.5,
-        "shape": "gauge",
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto",
-        "sparkline": false,
-        "textMode": "value_and_name"
+        "showPercentChange": false,
+        "textMode": "name",
+        "wideLayout": false
       },
       "pluginVersion": "13.3.1",
       "targets": [
@@ -106,9 +117,9 @@
             "uid": "measure-station-db"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT num_value AS pm1\r\nFROM reading_value\r\nWHERE station = 'mstn-2b'\r\n  AND source = 'particulates' AND section = 'values' AND key = 'pm1_ugm3'\r\n  AND ts_src <> 'estimated'\r\n  AND ts > now() - INTERVAL '15 minutes'\r\nORDER BY ts DESC\r\nLIMIT 1",
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm1\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm1_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
           "refId": "PM1",
           "sql": {
             "columns": [
@@ -131,7 +142,7 @@
       ],
       "title": "",
       "transparent": true,
-      "type": "gauge"
+      "type": "stat"
     },
     {
       "datasource": {
@@ -141,59 +152,75 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "fixedColor": "#ad46ff",
             "mode": "thresholds"
           },
           "decimals": 1,
-          "displayName": "PM 2.5",
-          "max": 60,
-          "min": 0,
+          "displayName": "PM 1.0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 8
-              },
-              {
-                "color": "orange",
-                "value": 25
-              },
-              {
-                "color": "dark-red",
-                "value": 50
-              },
-              {
-                "color": "#72000d",
-                "value": 125
               }
             ]
           },
           "unit": "conμgm3"
-        }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm1",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 6
+                    },
+                    {
+                      "color": "orange",
+                      "value": 20
+                    },
+                    {
+                      "color": "red",
+                      "value": 45
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 6,
+        "h": 2,
+        "w": 4,
+        "x": 2,
         "y": 0
       },
-      "id": 12,
+      "id": 25,
       "options": {
-        "barShape": "flat",
-        "barWidthFactor": 0.6,
-        "effects": {
-          "barGlow": false,
-          "centerGlow": false,
-          "gradient": false
-        },
-        "endpointMarker": "point",
-        "minVizHeight": 75,
-        "minVizWidth": 75,
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -201,14 +228,9 @@
           "fields": "",
           "values": false
         },
-        "segmentCount": 63,
-        "segmentSpacing": 0.5,
-        "shape": "gauge",
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto",
-        "sparkline": false,
-        "textMode": "value_and_name"
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": false
       },
       "pluginVersion": "13.3.1",
       "targets": [
@@ -219,10 +241,10 @@
             "uid": "measure-station-db"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT num_value AS pm1\r\nFROM reading_value\r\nWHERE station = 'mstn-2b'\r\n  AND source = 'particulates' AND section = 'values' AND key = 'pm25_ugm3'\r\n  AND ts_src <> 'estimated'\r\n  AND ts > now() - INTERVAL '15 minutes'\r\nORDER BY ts DESC\r\nLIMIT 1",
-          "refId": "PM25",
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm1\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm1_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "PM1",
           "sql": {
             "columns": [
               {
@@ -244,7 +266,7 @@
       ],
       "title": "",
       "transparent": true,
-      "type": "gauge"
+      "type": "stat"
     },
     {
       "datasource": {
@@ -257,8 +279,7 @@
             "mode": "thresholds"
           },
           "decimals": 1,
-          "displayName": "PM 4.0",
-          "max": 60,
+          "max": 35,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -266,47 +287,71 @@
               {
                 "color": "green",
                 "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 8
-              },
-              {
-                "color": "orange",
-                "value": 25
-              },
-              {
-                "color": "dark-red",
-                "value": 50
-              },
-              {
-                "color": "#72000d",
-                "value": 125
               }
             ]
           },
           "unit": "conμgm3"
-        }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm1",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 6
+                    },
+                    {
+                      "color": "orange",
+                      "value": 20
+                    },
+                    {
+                      "color": "red",
+                      "value": 45
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 12,
+        "h": 2,
+        "w": 15,
+        "x": 6,
         "y": 0
       },
-      "id": 13,
+      "id": 32,
       "options": {
-        "barShape": "flat",
-        "barWidthFactor": 0.6,
-        "effects": {
-          "barGlow": false,
-          "centerGlow": false,
-          "gradient": false
+        "displayMode": "lcd",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
         },
-        "endpointMarker": "point",
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
+        "maxVizHeight": 300,
+        "minVizHeight": 0,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -314,14 +359,134 @@
           "fields": "",
           "values": false
         },
-        "segmentCount": 63,
-        "segmentSpacing": 0.5,
-        "shape": "gauge",
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
+        "showUnfilled": true,
         "sizing": "auto",
-        "sparkline": false,
-        "textMode": "value_and_name"
+        "textMode": "none",
+        "valueMode": "text"
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm1\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm1_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "PM1",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#ad46ff",
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "displayName": "24h Max",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "conμgm3"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm1",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 6
+                    },
+                    {
+                      "color": "orange",
+                      "value": 20
+                    },
+                    {
+                      "color": "red",
+                      "value": 45
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 3,
+        "x": 21,
+        "y": 0
+      },
+      "id": 40,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": false
       },
       "pluginVersion": "13.3.1",
       "targets": [
@@ -334,7 +499,635 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT num_value AS pm1\r\nFROM reading_value\r\nWHERE station = 'mstn-2b'\r\n  AND source = 'particulates' AND section = 'values' AND key = 'pm4_ugm3'\r\n  AND ts_src <> 'estimated'\r\n  AND ts > now() - INTERVAL '15 minutes'\r\nORDER BY ts DESC\r\nLIMIT 1",
+          "rawSql": "-- Highest value in the last 24 Hours\r\nSELECT\r\n  max(num_value) AS pm1\r\nFROM\r\n  reading_value\r\nWHERE\r\n  ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm1_ugm3'\r\n  AND ts_src <> 'estimated'",
+          "refId": "PM1",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#ad46ff",
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "displayName": "PM 2.5",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "conμgm3"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm25",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 9
+                    },
+                    {
+                      "color": "orange",
+                      "value": 22
+                    },
+                    {
+                      "color": "red",
+                      "value": 50
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 2,
+        "x": 0,
+        "y": 2
+      },
+      "id": 37,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "name",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm25\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm25_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "PM2.5",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#ad46ff",
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "displayName": "PM 2.5",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "conμgm3"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm25",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 9
+                    },
+                    {
+                      "color": "orange",
+                      "value": 22
+                    },
+                    {
+                      "color": "red",
+                      "value": 50
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 4,
+        "x": 2,
+        "y": 2
+      },
+      "id": 24,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm25\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm25_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "PM2.5",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "max": 35,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "conμgm3"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm25",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 9
+                    },
+                    {
+                      "color": "orange",
+                      "value": 22
+                    },
+                    {
+                      "color": "red",
+                      "value": 50
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 15,
+        "x": 6,
+        "y": 2
+      },
+      "id": 33,
+      "options": {
+        "displayMode": "lcd",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "textMode": "none",
+        "valueMode": "text"
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm25\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm25_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "PM2.5",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#ad46ff",
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "displayName": "PM 2.5",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "conμgm3"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm25",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 9
+                    },
+                    {
+                      "color": "orange",
+                      "value": 22
+                    },
+                    {
+                      "color": "red",
+                      "value": 50
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 3,
+        "x": 21,
+        "y": 2
+      },
+      "id": 41,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "-- Highest value in the last 24 Hours\r\nSELECT\r\n  max(num_value) AS pm25\r\nFROM\r\n  reading_value\r\nWHERE\r\n  ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm25_ugm3'\r\n  AND ts_src <> 'estimated'",
+          "refId": "PM2.5",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#ad46ff",
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "displayName": "PM 4.0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "conμgm3"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm4",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 12
+                    },
+                    {
+                      "color": "orange",
+                      "value": 26
+                    },
+                    {
+                      "color": "red",
+                      "value": 55
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 2,
+        "x": 0,
+        "y": 4
+      },
+      "id": 38,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "name",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm4\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm4_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
           "refId": "PM4",
           "sql": {
             "columns": [
@@ -357,7 +1150,131 @@
       ],
       "title": "",
       "transparent": true,
-      "type": "gauge"
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#ad46ff",
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "displayName": "PM 4.0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "conμgm3"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm4",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 12
+                    },
+                    {
+                      "color": "orange",
+                      "value": 26
+                    },
+                    {
+                      "color": "red",
+                      "value": 55
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 4,
+        "x": 2,
+        "y": 4
+      },
+      "id": 26,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm4\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm4_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "PM4",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "stat"
     },
     {
       "datasource": {
@@ -370,8 +1287,7 @@
             "mode": "thresholds"
           },
           "decimals": 1,
-          "displayName": "PM 10",
-          "max": 200,
+          "max": 35,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -379,47 +1295,71 @@
               {
                 "color": "green",
                 "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 20
-              },
-              {
-                "color": "orange",
-                "value": 50
-              },
-              {
-                "color": "dark-red",
-                "value": 150
-              },
-              {
-                "color": "#72000d",
-                "value": 300
               }
             ]
           },
           "unit": "conμgm3"
-        }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm4",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 12
+                    },
+                    {
+                      "color": "orange",
+                      "value": 26
+                    },
+                    {
+                      "color": "red",
+                      "value": 55
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 18,
-        "y": 0
+        "h": 2,
+        "w": 15,
+        "x": 6,
+        "y": 4
       },
-      "id": 14,
+      "id": 34,
       "options": {
-        "barShape": "flat",
-        "barWidthFactor": 0.6,
-        "effects": {
-          "barGlow": false,
-          "centerGlow": false,
-          "gradient": false
+        "displayMode": "lcd",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
         },
-        "endpointMarker": "point",
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -427,14 +1367,135 @@
           "fields": "",
           "values": false
         },
-        "segmentCount": 63,
-        "segmentSpacing": 0.5,
-        "shape": "gauge",
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
+        "showUnfilled": true,
         "sizing": "auto",
-        "sparkline": false,
-        "textMode": "value_and_name"
+        "textMode": "none",
+        "valueMode": "text"
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm4\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm4_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "PM4",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#ad46ff",
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "displayName": "PM 4.0",
+          "max": 30,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "conμgm3"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm4",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 12
+                    },
+                    {
+                      "color": "orange",
+                      "value": 26
+                    },
+                    {
+                      "color": "red",
+                      "value": 55
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 3,
+        "x": 21,
+        "y": 4
+      },
+      "id": 42,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
       },
       "pluginVersion": "13.3.1",
       "targets": [
@@ -447,7 +1508,131 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT num_value AS pm10\r\nFROM reading_value\r\nWHERE station = 'mstn-2b'\r\n  AND source = 'particulates' AND section = 'values' AND key = 'pm10_ugm3'\r\n  AND ts_src <> 'estimated'\r\n  AND ts > now() - INTERVAL '15 minutes'\r\nORDER BY ts DESC\r\nLIMIT 1",
+          "rawSql": "-- Highest value in the last 24 Hours\r\nSELECT\r\n  max(num_value) AS pm4\r\nFROM\r\n  reading_value\r\nWHERE\r\n  ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm4_ugm3'\r\n  AND ts_src <> 'estimated'",
+          "refId": "PM4",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#ad46ff",
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "displayName": "PM 10",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "conμgm3"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm10",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 15
+                    },
+                    {
+                      "color": "orange",
+                      "value": 30
+                    },
+                    {
+                      "color": "red",
+                      "value": 60
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 2,
+        "x": 0,
+        "y": 6
+      },
+      "id": 39,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "name",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm10\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm10_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
           "refId": "PM10",
           "sql": {
             "columns": [
@@ -470,7 +1655,7 @@
       ],
       "title": "",
       "transparent": true,
-      "type": "gauge"
+      "type": "stat"
     },
     {
       "datasource": {
@@ -484,42 +1669,65 @@
             "mode": "thresholds"
           },
           "decimals": 1,
-          "displayName": "24 Hr Max - PM 1.0",
+          "displayName": "PM 10",
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 8
-              },
-              {
-                "color": "orange",
-                "value": 25
-              },
-              {
-                "color": "dark-red",
-                "value": 50
-              },
-              {
-                "color": "#72000d",
-                "value": 125
               }
             ]
           },
           "unit": "conμgm3"
-        }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm10",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 15
+                    },
+                    {
+                      "color": "orange",
+                      "value": 30
+                    },
+                    {
+                      "color": "red",
+                      "value": 60
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 0,
+        "h": 2,
+        "w": 4,
+        "x": 2,
         "y": 6
       },
-      "id": 17,
+      "id": 27,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
@@ -534,8 +1742,8 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "value_and_name",
-        "wideLayout": false
+        "textMode": "value",
+        "wideLayout": true
       },
       "pluginVersion": "13.3.1",
       "targets": [
@@ -546,10 +1754,10 @@
             "uid": "measure-station-db"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": "time_series",
           "rawQuery": true,
-          "rawSql": "-- Highest value in the last 24 Hours\r\nSELECT max(num_value) AS \"24 Hr Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates' AND section = 'values' AND key = 'pm1_ugm3'\r\n  AND ts_src <> 'estimated'",
-          "refId": "PM1",
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm10\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm10_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "PM10",
           "sql": {
             "columns": [
               {
@@ -581,52 +1789,82 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "#ad46ff",
             "mode": "thresholds"
           },
           "decimals": 1,
-          "displayName": "24 Hr Max - PM 2.5",
+          "max": 35,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 8
-              },
-              {
-                "color": "orange",
-                "value": 25
-              },
-              {
-                "color": "dark-red",
-                "value": 50
-              },
-              {
-                "color": "#72000d",
-                "value": 125
               }
             ]
           },
           "unit": "conμgm3"
-        }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm10",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 15
+                    },
+                    {
+                      "color": "orange",
+                      "value": 30
+                    },
+                    {
+                      "color": "red",
+                      "value": 60
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 4,
-        "w": 6,
+        "h": 2,
+        "w": 15,
         "x": 6,
         "y": 6
       },
-      "id": 18,
+      "id": 35,
       "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
+        "displayMode": "lcd",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -634,9 +1872,10 @@
           "fields": "",
           "values": false
         },
-        "showPercentChange": false,
-        "textMode": "value_and_name",
-        "wideLayout": false
+        "showUnfilled": true,
+        "sizing": "auto",
+        "textMode": "none",
+        "valueMode": "text"
       },
       "pluginVersion": "13.3.1",
       "targets": [
@@ -647,10 +1886,10 @@
             "uid": "measure-station-db"
           },
           "editorMode": "code",
-          "format": "table",
+          "format": "time_series",
           "rawQuery": true,
-          "rawSql": "-- Highest value in the last 24 Hours\r\nSELECT max(num_value) AS \"24 Hr Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates' AND section = 'values' AND key = 'pm25_ugm3'\r\n  AND ts_src <> 'estimated'",
-          "refId": "PM1",
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm10\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm10_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "PM10",
           "sql": {
             "columns": [
               {
@@ -672,7 +1911,7 @@
       ],
       "title": "",
       "transparent": true,
-      "type": "stat"
+      "type": "bargauge"
     },
     {
       "datasource": {
@@ -686,143 +1925,65 @@
             "mode": "thresholds"
           },
           "decimals": 1,
-          "displayName": "24 Hr Max - PM 4.0",
+          "displayName": "PM 10",
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 8
-              },
-              {
-                "color": "orange",
-                "value": 25
-              },
-              {
-                "color": "dark-red",
-                "value": 50
-              },
-              {
-                "color": "#72000d",
-                "value": 125
               }
             ]
           },
           "unit": "conμgm3"
-        }
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 12,
-        "y": 6
-      },
-      "id": 19,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
         },
-        "showPercentChange": false,
-        "textMode": "value_and_name",
-        "wideLayout": false
-      },
-      "pluginVersion": "13.3.1",
-      "targets": [
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "-- Highest value in the last 24 Hours\r\nSELECT max(num_value) AS \"24 Hr Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates' AND section = 'values' AND key = 'pm4_ugm3'\r\n  AND ts_src <> 'estimated'",
-          "refId": "PM1",
-          "sql": {
-            "columns": [
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm10",
+              "scope": "series"
+            },
+            "properties": [
               {
-                "parameters": [],
-                "type": "function"
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 15
+                    },
+                    {
+                      "color": "orange",
+                      "value": 30
+                    },
+                    {
+                      "color": "red",
+                      "value": 60
+                    }
+                  ]
+                }
               }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
+            ]
           }
-        }
-      ],
-      "title": "",
-      "transparent": true,
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "measure-station-db"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#ad46ff",
-            "mode": "thresholds"
-          },
-          "decimals": 1,
-          "displayName": "24 Hr Max - PM 10",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 20
-              },
-              {
-                "color": "orange",
-                "value": 40
-              },
-              {
-                "color": "dark-red",
-                "value": 150
-              },
-              {
-                "color": "#72000d",
-                "value": 300
-              }
-            ]
-          },
-          "unit": "conμgm3"
-        }
+        ]
       },
       "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 18,
+        "h": 2,
+        "w": 3,
+        "x": 21,
         "y": 6
       },
-      "id": 20,
+      "id": 43,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
@@ -837,8 +1998,8 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "value_and_name",
-        "wideLayout": false
+        "textMode": "value",
+        "wideLayout": true
       },
       "pluginVersion": "13.3.1",
       "targets": [
@@ -851,8 +2012,8 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "-- Highest value in the last 24 Hours\r\nSELECT max(num_value) AS \"24 Hr Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates' AND section = 'values' AND key = 'pm10_ugm3'\r\n  AND ts_src <> 'estimated'",
-          "refId": "PM1",
+          "rawSql": "-- Highest value in the last 24 Hours\r\nSELECT\r\n  max(num_value) AS pm10\r\nFROM\r\n  reading_value\r\nWHERE\r\n  ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm10_ugm3'\r\n  AND ts_src <> 'estimated'",
+          "refId": "PM10",
           "sql": {
             "columns": [
               {
@@ -905,7 +2066,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 10
+        "y": 8
       },
       "id": 21,
       "options": {
@@ -968,7 +2129,7 @@
             "lineStyle": {
               "fill": "solid"
             },
-            "lineWidth": 1,
+            "lineWidth": 2,
             "pointSize": 1,
             "scaleDistribution": {
               "type": "linear"
@@ -1093,7 +2254,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "semi-dark-red",
+                  "fixedColor": "dark-red",
                   "mode": "shades"
                 }
               }
@@ -1102,320 +2263,10 @@
         ]
       },
       "gridPos": {
-        "h": 14,
-        "w": 16,
+        "h": 16,
+        "w": 10,
         "x": 0,
-        "y": 11
-      },
-      "id": 15,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "enableFacetedFilter": false,
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.3.1",
-      "targets": [
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "time_series",
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm1\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm1_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
-          "refId": "PM1",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "time_series",
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm25\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm25_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
-          "refId": "PM2.5",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "time_series",
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm4\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm4_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
-          "refId": "PM4",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "time_series",
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm10\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm10_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
-          "refId": "PM10",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "timeFrom": "24h",
-      "title": "Particulates",
-      "transparent": true,
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "measure-station-db"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic",
-            "seriesBy": "max"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.9,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "always",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "dashed"
-            }
-          },
-          "displayName": "PM 1.0",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 12
-              },
-              {
-                "color": "orange",
-                "value": 25
-              },
-              {
-                "color": "dark-red",
-                "value": 50
-              },
-              {
-                "color": "#72000d",
-                "value": 150
-              }
-            ]
-          },
-          "unit": "conμgm3"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "pm1",
-              "scope": "series"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "PM 1.0"
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "solid"
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "semi-dark-blue",
-                  "mode": "shades"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "pm25",
-              "scope": "series"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "PM 2.5"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "semi-dark-green",
-                  "mode": "shades"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "pm4",
-              "scope": "series"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "PM 4.0"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
-                  "mode": "shades"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "pm10",
-              "scope": "series"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "PM 10"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "semi-dark-red",
-                  "mode": "shades"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 14,
-        "w": 8,
-        "x": 16,
-        "y": 11
+        "y": 9
       },
       "id": 16,
       "options": {
@@ -1552,6 +2403,352 @@
         }
       ],
       "timeFrom": "2h",
+      "title": "Particulates",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic",
+            "seriesBy": "max"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.9,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "displayName": "PM 1.0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 30
+              },
+              {
+                "color": "dark-red",
+                "value": 60
+              },
+              {
+                "color": "#72000d",
+                "value": 150
+              }
+            ]
+          },
+          "unit": "conμgm3"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm1",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "PM 1.0"
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    0,
+                    10
+                  ],
+                  "fill": "dot"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-blue",
+                  "mode": "shades"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm25",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "PM 2.5"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-green",
+                  "mode": "shades"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    0,
+                    10
+                  ],
+                  "fill": "dot"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm4",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "PM 4.0"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "shades"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    0,
+                    10
+                  ],
+                  "fill": "dot"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pm10",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "PM 10"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-red",
+                  "mode": "shades"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 14,
+        "x": 10,
+        "y": 9
+      },
+      "id": 15,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "enableFacetedFilter": false,
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm1\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm1_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "PM1",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm25\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm25_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "PM2.5",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm4\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm4_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "PM4",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS pm10\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'particulates'\r\n  AND section = 'values'\r\n  AND key = 'pm10_ugm3'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "PM10",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "timeFrom": "24h",
       "title": "Particulates",
       "transparent": true,
       "type": "timeseries"

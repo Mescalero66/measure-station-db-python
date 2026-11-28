@@ -30,6 +30,362 @@
           "color": {
             "mode": "thresholds"
           },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "text",
+                  "index": 5,
+                  "text": "Offline"
+                },
+                "1": {
+                  "color": "dark-green",
+                  "index": 0,
+                  "text": "Excellent"
+                },
+                "2": {
+                  "color": "super-light-green",
+                  "index": 1,
+                  "text": "Good"
+                },
+                "3": {
+                  "color": "yellow",
+                  "index": 2,
+                  "text": "Moderate"
+                },
+                "4": {
+                  "color": "orange",
+                  "index": 3,
+                  "text": "Poor"
+                },
+                "5": {
+                  "color": "semi-dark-red",
+                  "index": 4,
+                  "text": "Unhealthy"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^aqi$/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": false
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "-- The latest air quality index (1 excellent ... 5 unhealthy; 0 when the sensor is stuck).\r\n-- Nothing is shown if there's been no reading in the last 15 minutes.\r\nSELECT ts AS time,\r\n       (values_json->>'aqi')::int AS aqi\r\nFROM reading\r\nWHERE station = 'mstn-2b' AND source = 'air-quality'\r\n  AND ts > now() - INTERVAL '15 minutes'\r\nORDER BY ts DESC\r\nLIMIT 1",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Air Quality Index",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds",
+            "seriesBy": "last"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 17,
+            "gradientMode": "scheme",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 3,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": 300000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 100
+              },
+              {
+                "color": "orange",
+                "value": 250
+              },
+              {
+                "color": "red",
+                "value": 500
+              }
+            ]
+          },
+          "unit": "conppb"
+        }
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 16,
+        "x": 8,
+        "y": 0
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "enableFacetedFilter": false,
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS tvoc\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'air-quality'\r\n  AND section = 'values'\r\n  AND key = 'tvoc_ppb'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "TVOC",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "timeFrom": "24h",
+      "title": "TVOC",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 5,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "yellow",
+                "value": 2
+              },
+              {
+                "color": "super-light-green",
+                "value": 3
+              },
+              {
+                "color": "dark-green",
+                "value": 4
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 8,
+        "x": 0,
+        "y": 4
+      },
+      "id": 15,
+      "options": {
+        "displayMode": "lcd",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^air_quality$/",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "textMode": "none",
+        "valueMode": "hidden"
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "-- Air quality as a bar that's full when it's best:\r\n-- 5 excellent, 4 good, 3 moderate, 2 poor, 1 unhealthy; 0 when the sensor is stuck.\r\n-- Nothing is shown if there's been no reading in the last 15 minutes.\r\nSELECT ts AS time,\r\n       CASE WHEN (values_json->>'aqi')::int BETWEEN 1 AND 5\r\n            THEN 6 - (values_json->>'aqi')::int\r\n            ELSE 0\r\n       END AS air_quality\r\nFROM reading\r\nWHERE station = 'mstn-2b' AND source = 'air-quality'\r\n  AND ts > now() - INTERVAL '15 minutes'\r\nORDER BY ts DESC\r\nLIMIT 1",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "",
+      "transparent": true,
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 0,
           "displayName": "TVOC",
           "max": 500,
@@ -59,10 +415,10 @@
         }
       },
       "gridPos": {
-        "h": 6,
+        "h": 7,
         "w": 5,
         "x": 0,
-        "y": 0
+        "y": 5
       },
       "id": 3,
       "options": {
@@ -167,10 +523,10 @@
         }
       },
       "gridPos": {
-        "h": 6,
+        "h": 7,
         "w": 3,
         "x": 5,
-        "y": 0
+        "y": 5
       },
       "id": 13,
       "options": {
@@ -245,256 +601,6 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds",
-            "seriesBy": "last"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisGridShow": true,
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 17,
-            "gradientMode": "scheme",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 3,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": 300000,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "#EAB839",
-                "value": 100
-              },
-              {
-                "color": "orange",
-                "value": 250
-              },
-              {
-                "color": "red",
-                "value": 500
-              }
-            ]
-          },
-          "unit": "conppb"
-        }
-      },
-      "gridPos": {
-        "h": 11,
-        "w": 16,
-        "x": 8,
-        "y": 0
-      },
-      "id": 8,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "enableFacetedFilter": false,
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.3.1",
-      "targets": [
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "time_series",
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS tvoc\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'air-quality'\r\n  AND section = 'values'\r\n  AND key = 'tvoc_ppb'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
-          "refId": "TVOC",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "timeFrom": "24h",
-      "title": "TVOC",
-      "transparent": true,
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "measure-station-db"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "text",
-                  "index": 5,
-                  "text": "Offline"
-                },
-                "1": {
-                  "color": "dark-green",
-                  "index": 0,
-                  "text": "Excellent"
-                },
-                "2": {
-                  "color": "green",
-                  "index": 1,
-                  "text": "Good"
-                },
-                "3": {
-                  "color": "yellow",
-                  "index": 2,
-                  "text": "Moderate"
-                },
-                "4": {
-                  "color": "orange",
-                  "index": 3,
-                  "text": "Poor"
-                },
-                "5": {
-                  "color": "semi-dark-red",
-                  "index": 4,
-                  "text": "Unhealthy"
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          }
-        }
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 8,
-        "x": 0,
-        "y": 6
-      },
-      "id": 10,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "/^aqi$/",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "value",
-        "wideLayout": false
-      },
-      "pluginVersion": "13.3.1",
-      "targets": [
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "-- The latest air quality index (1 excellent ... 5 unhealthy; 0 when the sensor is stuck).\r\n-- Nothing is shown if there's been no reading in the last 15 minutes.\r\nSELECT ts AS time,\r\n       (values_json->>'aqi')::int AS aqi\r\nFROM reading\r\nWHERE station = 'mstn-2b' AND source = 'air-quality'\r\n  AND ts > now() - INTERVAL '15 minutes'\r\nORDER BY ts DESC\r\nLIMIT 1",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Air Quality Index",
-      "transparent": true,
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "measure-station-db"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
             "mode": "thresholds"
           },
           "thresholds": {
@@ -516,7 +622,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 11
+        "y": 12
       },
       "id": 14,
       "options": {
@@ -564,7 +670,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 250,
+            "axisSoftMax": 300,
             "axisSoftMin": 0,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
@@ -625,10 +731,10 @@
         }
       },
       "gridPos": {
-        "h": 13,
+        "h": 12,
         "w": 12,
         "x": 0,
-        "y": 12
+        "y": 13
       },
       "id": 11,
       "options": {
@@ -698,8 +804,8 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 20,
-            "axisSoftMin": 0,
+            "axisSoftMax": 25,
+            "axisSoftMin": 1,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
@@ -759,10 +865,10 @@
         }
       },
       "gridPos": {
-        "h": 13,
+        "h": 12,
         "w": 12,
         "x": 12,
-        "y": 12
+        "y": 13
       },
       "id": 12,
       "options": {

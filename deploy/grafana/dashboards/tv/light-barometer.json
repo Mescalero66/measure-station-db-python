@@ -35,9 +35,10 @@
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "series",
-            "axisGridShow": true,
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": 1025,
+            "axisSoftMin": 1000,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
@@ -66,7 +67,7 @@
               "mode": "none"
             },
             "thresholdsStyle": {
-              "mode": "off"
+              "mode": "dashed"
             }
           },
           "decimals": 0,
@@ -84,6 +85,10 @@
               {
                 "color": "#EAB839",
                 "value": 1020
+              },
+              {
+                "color": "orange",
+                "value": 1030
               }
             ]
           },
@@ -133,6 +138,20 @@
               {
                 "id": "custom.lineWidth",
                 "value": 1
+              },
+              {
+                "id": "custom.axisSoftMin",
+                "value": 10
+              },
+              {
+                "id": "custom.axisSoftMax",
+                "value": 35
+              },
+              {
+                "id": "custom.thresholdsStyle",
+                "value": {
+                  "mode": "off"
+                }
               }
             ]
           }
@@ -233,12 +252,10 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "fixedColor": "#ad46ff",
             "mode": "thresholds"
           },
           "decimals": 0,
-          "displayName": "Barometer",
-          "max": 1045,
-          "min": 980,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -260,24 +277,18 @@
         }
       },
       "gridPos": {
-        "h": 10,
+        "h": 4,
         "w": 4,
         "x": 11,
         "y": 0
       },
-      "id": 3,
+      "id": 12,
       "options": {
-        "barShape": "flat",
-        "barWidthFactor": 0.6,
-        "effects": {
-          "barGlow": false,
-          "centerGlow": false,
-          "gradient": true
-        },
-        "endpointMarker": "point",
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -285,14 +296,9 @@
           "fields": "",
           "values": false
         },
-        "segmentCount": 63,
-        "segmentSpacing": 0.5,
-        "shape": "gauge",
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto",
-        "sparkline": false,
-        "textMode": "value_and_name"
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
       },
       "pluginVersion": "13.3.1",
       "targets": [
@@ -305,8 +311,8 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT num_value AS pressure\r\nFROM reading_value\r\nWHERE station = 'mstn-2b'\r\n  AND source = 'barometer' AND section = 'values' AND key = 'pressure_hpa'\r\n  AND ts_src <> 'estimated'\r\n  AND ts > now() - INTERVAL '15 minutes'\r\nORDER BY ts DESC\r\nLIMIT 1",
-          "refId": "Pressure",
+          "rawSql": "-- Highest and lowest air temperature (MCP9808) in the last 24 hours.\r\nSELECT min(num_value) AS \"Min\",\r\n       max(num_value) AS \"Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'barometer' AND section = 'values' AND key = 'pressure_hpa'\r\n  AND ts_src <> 'estimated'",
+          "refId": "A",
           "sql": {
             "columns": [
               {
@@ -326,9 +332,9 @@
           }
         }
       ],
-      "title": "",
+      "title": "24 Hour",
       "transparent": true,
-      "type": "gauge"
+      "type": "stat"
     },
     {
       "datasource": {
@@ -345,7 +351,6 @@
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "series",
-            "axisGridShow": true,
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -376,7 +381,7 @@
               "mode": "none"
             },
             "thresholdsStyle": {
-              "mode": "off"
+              "mode": "dashed"
             }
           },
           "decimals": 0,
@@ -394,6 +399,10 @@
               {
                 "color": "#EAB839",
                 "value": 1020
+              },
+              {
+                "color": "orange",
+                "value": 1030
               }
             ]
           },
@@ -443,6 +452,20 @@
               {
                 "id": "custom.lineWidth",
                 "value": 1
+              },
+              {
+                "id": "custom.axisSoftMin",
+                "value": null
+              },
+              {
+                "id": "custom.axisSoftMax",
+                "value": null
+              },
+              {
+                "id": "custom.thresholdsStyle",
+                "value": {
+                  "mode": "off"
+                }
               }
             ]
           }
@@ -454,7 +477,7 @@
         "x": 15,
         "y": 0
       },
-      "id": 7,
+      "id": 14,
       "options": {
         "legend": {
           "calcs": [],
@@ -543,10 +566,12 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "#ad46ff",
             "mode": "thresholds"
           },
           "decimals": 0,
+          "displayName": "Barometer",
+          "max": 1040,
+          "min": 980,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -561,6 +586,10 @@
               {
                 "color": "#EAB839",
                 "value": 1020
+              },
+              {
+                "color": "orange",
+                "value": 1030
               }
             ]
           },
@@ -568,18 +597,24 @@
         }
       },
       "gridPos": {
-        "h": 3,
+        "h": 10,
         "w": 4,
         "x": 11,
-        "y": 10
+        "y": 4
       },
-      "id": 12,
+      "id": 3,
       "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "percentChangeColorMode": "standard",
+        "barShape": "flat",
+        "barWidthFactor": 0.6,
+        "effects": {
+          "barGlow": false,
+          "centerGlow": false,
+          "gradient": true
+        },
+        "endpointMarker": "point",
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -587,9 +622,14 @@
           "fields": "",
           "values": false
         },
-        "showPercentChange": false,
-        "textMode": "value_and_name",
-        "wideLayout": true
+        "segmentCount": 63,
+        "segmentSpacing": 0.5,
+        "shape": "gauge",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "sparkline": false,
+        "textMode": "value_and_name"
       },
       "pluginVersion": "13.3.1",
       "targets": [
@@ -602,8 +642,8 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "-- Highest and lowest air temperature (MCP9808) in the last 24 hours.\r\nSELECT min(num_value) AS \"24h Min\",\r\n       max(num_value) AS \"24h Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'barometer' AND section = 'values' AND key = 'pressure_hpa'\r\n  AND ts_src <> 'estimated'",
-          "refId": "A",
+          "rawSql": "SELECT num_value AS pressure\r\nFROM reading_value\r\nWHERE station = 'mstn-2b'\r\n  AND source = 'barometer' AND section = 'values' AND key = 'pressure_hpa'\r\n  AND ts_src <> 'estimated'\r\n  AND ts > now() - INTERVAL '15 minutes'\r\nORDER BY ts DESC\r\nLIMIT 1",
+          "refId": "Pressure",
           "sql": {
             "columns": [
               {
@@ -625,133 +665,7 @@
       ],
       "title": "",
       "transparent": true,
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "measure-station-db"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        }
-      },
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 14
-      },
-      "id": 11,
-      "options": {
-        "inlineEditing": true,
-        "panZoom": false,
-        "root": {
-          "background": {
-            "color": {
-              "fixed": "transparent"
-            }
-          },
-          "border": {
-            "color": {
-              "fixed": "dark-green"
-            }
-          },
-          "constraint": {
-            "horizontal": "left",
-            "vertical": "top"
-          },
-          "elements": [
-            {
-              "background": {
-                "color": {
-                  "fixed": "#D9D9D9"
-                }
-              },
-              "border": {
-                "color": {
-                  "fixed": "dark-green"
-                }
-              },
-              "config": {
-                "align": "center",
-                "color": {
-                  "fixed": "#000000"
-                },
-                "size": 20,
-                "text": {
-                  "field": "",
-                  "fixed": "",
-                  "mode": "field"
-                },
-                "valign": "middle"
-              },
-              "constraint": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "links": [],
-              "name": "Element 1",
-              "placement": {
-                "height": 50,
-                "left": 100,
-                "rotation": 0,
-                "top": 100,
-                "width": 260
-              },
-              "type": "metric-value"
-            }
-          ],
-          "name": "Element 1795701549649",
-          "placement": {
-            "height": 100,
-            "left": 0,
-            "rotation": 0,
-            "top": 0,
-            "width": 100
-          },
-          "type": "frame"
-        },
-        "showAdvancedTypes": true,
-        "tooltip": {
-          "disableForOneClick": false,
-          "mode": "single"
-        },
-        "zoomToContent": false
-      },
-      "pluginVersion": "13.4.0",
-      "targets": [
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "builder",
-          "format": "table",
-          "rawSql": "",
-          "refId": "A"
-        }
-      ],
-      "title": "",
-      "transparent": true,
-      "type": "canvas"
+      "type": "gauge"
     },
     {
       "datasource": {
@@ -768,9 +682,9 @@
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisGridShow": true,
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMin": 0,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
@@ -789,7 +703,9 @@
             "lineWidth": 2,
             "pointSize": 3,
             "scaleDistribution": {
-              "type": "linear"
+              "linearThreshold": 32,
+              "log": 2,
+              "type": "symlog"
             },
             "showPoints": "auto",
             "showValues": false,
@@ -864,6 +780,10 @@
                 "value": {
                   "type": "linear"
                 }
+              },
+              {
+                "id": "custom.axisSoftMin",
+                "value": null
               }
             ]
           }
@@ -873,7 +793,7 @@
         "h": 10,
         "w": 11,
         "x": 0,
-        "y": 15
+        "y": 14
       },
       "id": 9,
       "options": {
@@ -964,6 +884,302 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "fixedColor": "#ad46ff",
+            "mode": "continuous-plasma"
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1005
+              },
+              {
+                "color": "#EAB839",
+                "value": 1020
+              }
+            ]
+          },
+          "unit": "lux"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 11,
+        "y": 14
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "-- Highest and lowest air temperature (MCP9808) in the last 24 hours.\r\nSELECT min(num_value) AS \"Min\",\r\n       max(num_value) AS \"Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'light' AND section = 'values' AND key = 'illuminance_lux'\r\n  AND ts_src <> 'estimated'",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "24 Hour",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-plasma",
+            "seriesBy": "last"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 17,
+            "gradientMode": "scheme",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 3,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": 300000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "lux"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "temperature",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "solid"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#454545",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "unit",
+                "value": "celsius"
+              },
+              {
+                "id": "custom.axisColorMode",
+                "value": "series"
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 1
+              },
+              {
+                "id": "custom.axisSoftMin",
+                "value": null
+              },
+              {
+                "id": "custom.axisSoftMax",
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 9,
+        "x": 15,
+        "y": 14
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "enableFacetedFilter": false,
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.3.1",
+      "targets": [
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS lux\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'light'\r\n  AND section = 'values'\r\n  AND key = 'illuminance_lux'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "Lux",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "dataset": "measure_station_db",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "measure-station-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS temperature\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'temperature'\r\n  AND section = 'values'\r\n  AND key = 'temperature_c'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
+          "refId": "Temp",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "timeFrom": "2h",
+      "title": "Lux",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "measure-station-db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
             "mode": "continuous-plasma"
           },
           "displayName": "Illuminance",
@@ -983,7 +1199,7 @@
         "h": 6,
         "w": 4,
         "x": 11,
-        "y": 15
+        "y": 18
       },
       "id": 6,
       "options": {
@@ -1109,251 +1325,107 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "continuous-plasma",
-            "seriesBy": "last"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisGridShow": true,
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 17,
-            "gradientMode": "scheme",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 3,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": 300000,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "mode": "thresholds"
           },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "lux"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "temperature",
-              "scope": "series"
-            },
-            "properties": [
-              {
-                "id": "custom.axisPlacement",
-                "value": "right"
-              },
-              {
-                "id": "custom.drawStyle",
-                "value": "line"
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "solid"
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#454545",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 0
-              },
-              {
-                "id": "unit",
-                "value": "celsius"
-              },
-              {
-                "id": "custom.axisColorMode",
-                "value": "series"
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 1
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 9,
-        "x": 15,
-        "y": 15
-      },
-      "id": 10,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "enableFacetedFilter": false,
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "13.3.1",
-      "targets": [
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "time_series",
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS lux\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'light'\r\n  AND section = 'values'\r\n  AND key = 'illuminance_lux'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
-          "refId": "Lux",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  ts AS time,\r\n  num_value AS temperature\r\nFROM\r\n  reading_value\r\nWHERE\r\n  $__timeFilter(ts)\r\n  AND station = 'mstn-2b'\r\n  AND source = 'temperature'\r\n  AND section = 'values'\r\n  AND key = 'temperature_c'\r\n  AND ts_src <> 'estimated'\r\nORDER BY\r\n  ts",
-          "refId": "Temp",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "timeFrom": "2h",
-      "title": "Lux",
-      "transparent": true,
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "measure-station-db"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#ad46ff",
-            "mode": "continuous-plasma"
-          },
-          "decimals": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              },
               {
                 "color": "green",
-                "value": 1005
+                "value": 0
               },
               {
-                "color": "#EAB839",
-                "value": 1020
+                "color": "red",
+                "value": 80
               }
             ]
-          },
-          "unit": "lux"
+          }
         }
       },
       "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 11,
-        "y": 21
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 24
       },
-      "id": 13,
+      "id": 11,
       "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
+        "inlineEditing": true,
+        "panZoom": false,
+        "root": {
+          "background": {
+            "color": {
+              "fixed": "transparent"
+            }
+          },
+          "border": {
+            "color": {
+              "fixed": "dark-green"
+            }
+          },
+          "constraint": {
+            "horizontal": "left",
+            "vertical": "top"
+          },
+          "elements": [
+            {
+              "background": {
+                "color": {
+                  "fixed": "#D9D9D9"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "center",
+                "color": {
+                  "fixed": "#000000"
+                },
+                "size": 20,
+                "text": {
+                  "field": "",
+                  "fixed": "",
+                  "mode": "field"
+                },
+                "valign": "middle"
+              },
+              "constraint": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "links": [],
+              "name": "Element 1",
+              "placement": {
+                "height": 50,
+                "left": 100,
+                "rotation": 0,
+                "top": 100,
+                "width": 260
+              },
+              "type": "metric-value"
+            }
           ],
-          "fields": "",
-          "values": false
+          "name": "Element 1795701549649",
+          "placement": {
+            "height": 100,
+            "left": 0,
+            "rotation": 0,
+            "top": 0,
+            "width": 100
+          },
+          "type": "frame"
         },
-        "showPercentChange": false,
-        "textMode": "value_and_name",
-        "wideLayout": true
+        "showAdvancedTypes": true,
+        "tooltip": {
+          "disableForOneClick": false,
+          "mode": "single"
+        },
+        "zoomToContent": false
       },
-      "pluginVersion": "13.3.1",
+      "pluginVersion": "13.4.0",
       "targets": [
         {
           "dataset": "measure_station_db",
@@ -1361,33 +1433,15 @@
             "type": "grafana-postgresql-datasource",
             "uid": "measure-station-db"
           },
-          "editorMode": "code",
+          "editorMode": "builder",
           "format": "table",
-          "rawQuery": true,
-          "rawSql": "-- Highest and lowest air temperature (MCP9808) in the last 24 hours.\r\nSELECT min(num_value) AS \"24h Min\",\r\n       max(num_value) AS \"24h Max\"\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'light' AND section = 'values' AND key = 'illuminance_lux'\r\n  AND ts_src <> 'estimated'",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
+          "rawSql": "",
+          "refId": "A"
         }
       ],
       "title": "",
       "transparent": true,
-      "type": "stat"
+      "type": "canvas"
     }
   ],
   "preload": false,

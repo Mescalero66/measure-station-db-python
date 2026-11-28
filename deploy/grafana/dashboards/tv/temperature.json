@@ -156,6 +156,8 @@
           },
           "decimals": 2,
           "displayName": "Temperature",
+          "max": 40,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -233,60 +235,9 @@
             ],
             "limit": 50
           }
-        },
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT round(min(num_value)::numeric, 1) AS min,\r\n       round(max(num_value)::numeric, 1) AS max\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'temperature' AND section = 'values' AND key = 'temperature_c'\r\n  AND ts_src <> 'estimated'",
-          "refId": "Ave",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
         }
       ],
       "title": "",
-      "transformations": [
-        {
-          "id": "configFromData",
-          "options": {
-            "applyTo": {
-              "id": "byName",
-              "options": "temperature"
-            },
-            "configRefId": "Ave",
-            "mappings": [
-              {
-                "fieldName": "min",
-                "handlerKey": "min"
-              },
-              {
-                "fieldName": "max",
-                "handlerKey": "max"
-              }
-            ]
-          }
-        }
-      ],
       "transparent": true,
       "type": "gauge"
     },
@@ -734,6 +685,8 @@
           },
           "decimals": 1,
           "displayName": "Humidity",
+          "max": 95,
+          "min": 5,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -811,60 +764,9 @@
             ],
             "limit": 50
           }
-        },
-        {
-          "dataset": "measure_station_db",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "measure-station-db"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT round(min(num_value)::numeric, 1) AS min,\r\n       round(max(num_value)::numeric, 1) AS max\r\nFROM reading_value\r\nWHERE ts > now() - INTERVAL '24 hours'\r\n  AND station = 'mstn-2b'\r\n  AND source = 'humidity' AND section = 'values' AND key = 'humidity_pct'\r\n  AND ts_src <> 'estimated'",
-          "refId": "Ave",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
         }
       ],
       "title": "",
-      "transformations": [
-        {
-          "id": "configFromData",
-          "options": {
-            "applyTo": {
-              "id": "byName",
-              "options": "humidity"
-            },
-            "configRefId": "Ave",
-            "mappings": [
-              {
-                "fieldName": "min",
-                "handlerKey": "min"
-              },
-              {
-                "fieldName": "max",
-                "handlerKey": "max"
-              }
-            ]
-          }
-        }
-      ],
       "transparent": true,
       "type": "gauge"
     },
