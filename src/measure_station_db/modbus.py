@@ -50,7 +50,8 @@ from measure_station_db.drivers.modbus_tcp import (
 from measure_station_db.logging_setup import configure_logging
 from measure_station_db.messages import STATUS_SOURCE
 
-log = logging.getLogger(__name__)
+# Named in full: run with "python -m", this module's __name__ is "__main__".
+log = logging.getLogger("measure_station_db.modbus")
 
 EX_CONFIG = 78  # a configuration error: the unit file doesn't restart the service
 

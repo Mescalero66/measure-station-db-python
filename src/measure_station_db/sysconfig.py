@@ -176,7 +176,7 @@ MUSIC_DIR: str = "/srv/music"
 # Each weather's chance of being picked for the next hour, as a share of the total (these
 # add up to 100, but needn't). 0 means never. If an hour has no file for a weather, that
 # weather's share goes to the others.
-MUSIC_WEATHER_CHANCES: dict[str, float] = {"Sunny": 60, "Rain": 30, "Snow": 10}
+MUSIC_WEATHER_CHANCES: dict[str, float] = {"Sunny": 70, "Rain": 20, "Snow": 10}
 # Where the sound goes: the TV, on the Pi's HDMI 0 port (the one next to the power socket).
 MUSIC_AUDIO_DEVICE: str = "hdmi:CARD=vc4hdmi0,DEV=0"
 # The track being played is noted in this file, so that after a restart it carries on.

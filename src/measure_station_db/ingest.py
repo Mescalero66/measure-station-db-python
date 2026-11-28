@@ -37,7 +37,8 @@ from measure_station_db import schema, sysconfig
 from measure_station_db.logging_setup import configure_logging
 from measure_station_db.messages import Message, check
 
-log = logging.getLogger(__name__)
+# Named in full: run with "python -m", this module's __name__ is "__main__".
+log = logging.getLogger("measure_station_db.ingest")
 
 # Exit status for a configuration error. The unit file stops systemd restarting the
 # service for it, since only a person can fix it.

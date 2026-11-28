@@ -42,7 +42,8 @@ from pathlib import Path
 from measure_station_db import sysconfig
 from measure_station_db.logging_setup import configure_logging
 
-log = logging.getLogger(__name__)
+# Named in full: run with "python -m", this module's __name__ is "__main__".
+log = logging.getLogger("measure_station_db.music")
 
 EX_CONFIG = 78  # a configuration error: the unit file doesn't restart the service
 HOURS = 24
