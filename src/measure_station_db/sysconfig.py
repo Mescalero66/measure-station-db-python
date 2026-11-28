@@ -162,6 +162,30 @@ DISPLAY_ITEMS: list[dict[str, Any]] = [
 ]
 
 # --------------------------------------------------------------------------- #
+# Background music (docs/background-music.md)
+# --------------------------------------------------------------------------- #
+# Plays a folder of MP3s through the TV's speakers (over HDMI): one track per hour, in
+# clock order from 12 am to 11 pm and round again, with each hour's weather picked at
+# random. The hours are only names: they don't follow the real time of day. The files are
+# named like "03 pm (Rain).mp3"; other names are ignored.
+# Off by default. To switch it on, copy the music to the Pi (docs/background-music.md),
+# then set this to True and run: sudo systemctl restart measure-station-db-music
+MUSIC_ENABLED: bool = False
+# The music folder (folders inside it count too).
+MUSIC_DIR: str = "/srv/music"
+# Each weather's chance of being picked for the next hour, as a share of the total (these
+# add up to 100, but needn't). 0 means never. If an hour has no file for a weather, that
+# weather's share goes to the others.
+MUSIC_WEATHER_CHANCES: dict[str, float] = {"Sunny": 60, "Rain": 30, "Snow": 10}
+# Where the sound goes: the TV, on the Pi's HDMI 0 port (the one next to the power socket).
+MUSIC_AUDIO_DEVICE: str = "hdmi:CARD=vc4hdmi0,DEV=0"
+# The track being played is noted in this file, so that after a restart it carries on.
+MUSIC_BOOKMARK_FILE: str = "/var/lib/measure-station-db-music/bookmark"
+# How long to wait before trying a track again when it can't be played (e.g. the TV's
+# sound isn't available).
+MUSIC_RETRY_S: float = 10
+
+# --------------------------------------------------------------------------- #
 # Modbus TCP devices (docs/modbus-devices.md)
 # --------------------------------------------------------------------------- #
 # The Modbus poller reads each enabled device's registers on a timer, and publishes them

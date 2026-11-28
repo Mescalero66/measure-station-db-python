@@ -27,6 +27,8 @@ Grafana dashboard shows the live data. Next: the finished dashboards (phase 3). 
   server Pi that a station's readings arrive, complete and in the right form.
 - [The LED Display and Button](docs/led-display.md): wiring the 8-digit display and its
   button to the Pi safely, and choosing what they show.
+- [Background Music on the TV](docs/background-music.md): hour-by-hour music through
+  the TV's speakers, with each hour's weather picked at random.
 - [Backups](docs/backups.md): nightly backups of the database to a Synology NAS, copied
   on to Google Drive, and how to restore them.
 - [Development](docs/development.md): setting up a development copy, running the tests
@@ -78,6 +80,7 @@ Everything between the stations and the phones runs on the server Pi.
 | **Kiosk** | Chromium in full-screen mode on the TV, started at boot, with no desktop | Off the shelf, configured by us |
 | **Modbus poller** (optional, off by default) | Reads Modbus TCP devices on a timer and publishes their values to the broker as station messages, so each device is a "virtual station" | Ours (Python), with the Modbus client copied from `device-data-receiver` |
 | **Display service** (optional, off by default) | Shows the latest value of one series on the LED display; the button moves to the next | Ours (Python), with the display driver ported from the user's MicroPython one |
+| **Music service** (optional, off by default) | Plays a folder of MP3s through the TV's HDMI sound, one track per hour, with each hour's weather picked at random | Ours (Python), playing each track with `mpg123` |
 
 Each of our programs is its own `systemd` service, so a fault in one (e.g. the display)
 can't stop data being stored.
@@ -132,6 +135,7 @@ estimates, to be measured on the Pi:
 | PostgreSQL + TimescaleDB (tuned for a small machine) | 150 to 250 MB |
 | Grafana | 150 to 250 MB |
 | Remote app | 50 MB |
+| Music service (with `mpg123`) | 30 MB |
 | Chromium on the TV | 400 to 700 MB |
 | **Total** | **About 1.0 to 1.5 GB** |
 
@@ -380,6 +384,7 @@ src/measure_station_db/
     modbus.py           the Modbus poller: Modbus TCP devices as virtual stations
     backup.py           the nightly backup: pg_dump into a restic repository
     dashboards.py       copies of Grafana's dashboards and playlists: save and restore
+    music.py            the background music on the TV
     drivers/            code copied unchanged from other projects (the Modbus TCP client)
     remote/             the remote app: TV page and remote page
     display/            LED display and button: the HT16K33 driver and the service
@@ -421,8 +426,10 @@ display and its button, on the Pi only).
    - dashboards for phones (in a **Phone** folder in Grafana).
 4. **TV:** TV page, remote page and presets (the kiosk then shows the TV page).
    **To do:**
-   - controlling the TV dashboards from a phone (the remote page);
-   - a music player for background music on the TV.
+   - controlling the TV dashboards from a phone (the remote page).
+
+   Written, not yet run on the Pi: [background music](docs/background-music.md) through
+   the TV's speakers (off until switched on).
 5. **Revisit alerts** (deferred; see [Alerts](#alerts-deferred)), including whether to
    notify someone away from home.
 6. **Backups** ([written](docs/backups.md), not yet run): nightly to the NAS, and from

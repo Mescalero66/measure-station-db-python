@@ -1,0 +1,37 @@
+# Installed by deploy/install.sh (@APP_DIR@ and @APP_USER@ are substituted).
+[Unit]
+Description=Measure Station server: background music on the TV
+Documentation=file://@APP_DIR@/docs/background-music.md
+After=sound.target
+# Never give up restarting after a failure.
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+# The service user is in the audio group (deploy/install.sh), which may use the sound.
+User=@APP_USER@
+Group=@APP_USER@
+WorkingDirectory=@APP_DIR@
+ExecStart=@APP_DIR@/.venv/bin/python -m measure_station_db.music
+Environment=PYTHONUNBUFFERED=1
+# /var/lib/measure-station-db-music, for the bookmark (sysconfig.MUSIC_BOOKMARK_FILE).
+StateDirectory=measure-station-db-music
+
+# Restart after a crash, but not after a clean exit: with the music switched off (the
+# default), it logs that and exits, and stays stopped.
+Restart=on-failure
+RestartSec=5
+# Nor after a configuration error (EX_CONFIG), which needs a person.
+RestartPreventExitStatus=78
+TimeoutStopSec=10
+# Below the database and the ingest service when the Pi is busy.
+Nice=5
+
+# Hardening.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

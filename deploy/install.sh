@@ -14,10 +14,15 @@ APP_USER=measure-station-db
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VENV_DIR="$APP_DIR/.venv"
 ETC_DIR="/etc/$APP_NAME"
-# The Modbus poller and the LED display are installed and enabled too, but exit at once
-# while MODBUS_ENABLED / DISPLAY_ENABLED are False in sysconfig.py
-# (docs/modbus-devices.md, docs/led-display.md).
-SERVICES=(measure-station-db-ingest measure-station-db-modbus measure-station-db-display)
+# The Modbus poller, the LED display and the music are installed and enabled too, but
+# exit at once while MODBUS_ENABLED / DISPLAY_ENABLED / MUSIC_ENABLED are False in
+# sysconfig.py (docs/modbus-devices.md, docs/led-display.md, docs/background-music.md).
+SERVICES=(
+    measure-station-db-ingest
+    measure-station-db-modbus
+    measure-station-db-display
+    measure-station-db-music
+)
 # Started by a timer, not at boot. The backup stays off while BACKUP_ENABLED is False
 # in sysconfig.py (docs/backups.md).
 TIMED_SERVICES=(measure-station-db-backup)
@@ -31,14 +36,18 @@ fi
 
 log "Installing system packages"
 apt-get update
-apt-get install -y --no-install-recommends python3 python3-venv python3-pip git restic
+# mpg123 plays the background music; alsa-utils has aplay and speaker-test, for checking
+# the TV's sound.
+apt-get install -y --no-install-recommends \
+    python3 python3-venv python3-pip git restic mpg123 alsa-utils
 
 log "Creating service user '$APP_USER'"
 if ! id "$APP_USER" &>/dev/null; then
     useradd --system --no-create-home --shell /usr/sbin/nologin "$APP_USER"
 fi
-# The LED display's I2C bus and its button's GPIO pin (Raspberry Pi OS's groups).
-for group in i2c gpio; do
+# The LED display's I2C bus, its button's GPIO pin, and the sound for the music
+# (Raspberry Pi OS's groups).
+for group in i2c gpio audio; do
     if getent group "$group" >/dev/null; then
         usermod -aG "$group" "$APP_USER"
     fi
@@ -100,4 +109,5 @@ Next steps (the first time):
 Modbus devices are off until switched on: see docs/modbus-devices.md.
 Backups are off until switched on: see docs/backups.md.
 The LED display is off until switched on: see docs/led-display.md.
+The background music is off until switched on: see docs/background-music.md.
 EOF
