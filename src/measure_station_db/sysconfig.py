@@ -170,7 +170,7 @@ DISPLAY_ITEMS: list[dict[str, Any]] = [
 # named like "03 pm (Rain).mp3"; other names are ignored.
 # Off by default. To switch it on, copy the music to the Pi (docs/background-music.md),
 # then set this to True and run: sudo systemctl restart measure-station-db-music
-MUSIC_ENABLED: bool = False
+MUSIC_ENABLED: bool = True
 # The music folder (folders inside it count too).
 MUSIC_DIR: str = "/srv/music"
 # Each weather's chance of being picked for the next hour, as a share of the total (these

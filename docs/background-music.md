@@ -30,7 +30,7 @@ Contents:
   … `11 pm`, then `12 am` again. The hours are only names: a track called `03 pm` can play
   at any time of day. An hour with no tracks is skipped.
 - **The weather is picked at random for each hour,** with chances you set. The default is
-  60% Sunny, 25% Rain and 15% Snow. If an hour has no file for one weather, its chance is
+  60% Sunny, 30% Rain and 10% Snow. If an hour has no file for one weather, its chance is
   shared among the others.
 - **It always plays.** It starts by itself when the Pi starts, and carries on after a
   power cut: the track that was playing starts again from its beginning, and the hours
@@ -116,6 +116,16 @@ If there's no `vc4hdmi0` line, or no sound, see [Troubleshooting](#troubleshooti
    The folder arrives as `/srv/music/Hourly Music/`. That's fine: the music service also
    reads folders inside `/srv/music`.
 
+3. **On the Pi,** let the music service read the files. Copies from Windows can arrive
+   readable by your login only:
+
+   ```bash
+   chmod -R u=rwX,go=rX /srv/music
+   ```
+
+   It prints nothing. Folders now let everyone look inside, and files let everyone read
+   them; only you can change them. Run it again after every copy.
+
 ## Step 4: Check the Music
 
 On the Pi:
@@ -128,7 +138,7 @@ This plays nothing. It lists how many tracks it found for each hour and weather:
 
 ```text
 Music folder: /srv/music
-Chances: Sunny 60%, Rain 25%, Snow 15%
+Chances: Sunny 60%, Rain 30%, Snow 10%
 
 Hour       Sunny    Rain    Snow
 12 am          1       1       1
@@ -160,7 +170,7 @@ stop it.
 
 ## Step 5: Choose the Weather Chances
 
-Skip this step to keep 60% Sunny, 25% Rain and 15% Snow.
+Skip this step to keep 60% Sunny, 30% Rain and 10% Snow.
 
 ```bash
 sudo nano /opt/measure-station-db/src/measure_station_db/sysconfig.py
@@ -169,7 +179,7 @@ sudo nano /opt/measure-station-db/src/measure_station_db/sysconfig.py
 Press **Ctrl+W**, type `MUSIC_WEATHER_CHANCES` and press Enter. You'll see:
 
 ```python
-MUSIC_WEATHER_CHANCES: dict[str, float] = {"Sunny": 60, "Rain": 25, "Snow": 15}
+MUSIC_WEATHER_CHANCES: dict[str, float] = {"Sunny": 60, "Rain": 30, "Snow": 10}
 ```
 
 Change the numbers. Each is a share of the total, so they're percentages when they add up
@@ -215,9 +225,9 @@ From now on it starts by itself whenever the Pi starts, and carries on where it 
 
 ## Adding or Changing Music
 
-Copy, rename or delete files in `/srv/music` at any time (with `scp` as in
-[Step 3](#step-3-copy-the-music-to-the-pi), or on the Pi). The service reads the folder
-again before every track, so there's nothing to restart. Run the check in
+Copy, rename or delete files in `/srv/music` at any time (with `scp` and then `chmod`,
+as in [Step 3](#step-3-copy-the-music-to-the-pi), or on the Pi). The service reads the
+folder again before every track, so there's nothing to restart. Run the check in
 [Step 4](#step-4-check-the-music) afterwards to see what it found.
 
 ## Everyday Tasks
@@ -241,7 +251,7 @@ after a change.
 |---|---|---|
 | `MUSIC_ENABLED` | `False` | `True` to play the music |
 | `MUSIC_DIR` | `"/srv/music"` | The music folder. Folders inside it count too |
-| `MUSIC_WEATHER_CHANCES` | `{"Sunny": 60, "Rain": 25, "Snow": 15}` | Each weather's chance for the next hour ([Step 5](#step-5-choose-the-weather-chances)). Other weathers work too, e.g. `"Windy": 10`, if the files use that name |
+| `MUSIC_WEATHER_CHANCES` | `{"Sunny": 60, "Rain": 30, "Snow": 10}` | Each weather's chance for the next hour ([Step 5](#step-5-choose-the-weather-chances)). Other weathers work too, e.g. `"Windy": 10`, if the files use that name |
 | `MUSIC_AUDIO_DEVICE` | `"hdmi:CARD=vc4hdmi0,DEV=0"` | Where the sound goes: the TV on HDMI 0. `"hdmi:CARD=vc4hdmi1,DEV=0"` for HDMI 1 |
 | `MUSIC_BOOKMARK_FILE` | `"/var/lib/measure-station-db-music/bookmark"` | Notes the track playing, so a restart carries on from it. Delete the file to start again from `12 am` |
 | `MUSIC_RETRY_S` | `10` | Seconds to wait before trying again when a track can't be played |
@@ -253,7 +263,8 @@ after a change.
 | `aplay -l` shows no `vc4hdmi0` | The Pi doesn't see the TV's sound. Check the TV is on **HDMI 0** (next to the power socket), and that it was on when the Pi started; then `sudo reboot` with the TV on. If it shows `vc4hdmi1` instead, the TV is on HDMI 1: set `MUSIC_AUDIO_DEVICE` to `"hdmi:CARD=vc4hdmi1,DEV=0"`, and use that in the Step 2 and 4 commands |
 | `speaker-test` runs, but there's no sound | Check the TV isn't muted, and its sound output is set to its own speakers (not a soundbar that's off). Try the volume higher |
 | `Device or resource busy` | Another program is using the TV's sound, usually the music service itself. Stop it (`sudo systemctl stop measure-station-db-music`), try again, then start it |
-| `Permission denied` from the Step 4 `mpg123` command, or in the log | The service user isn't allowed to use the sound yet. Run `sudo bash /opt/measure-station-db/deploy/install.sh` again, then restart the service |
+| `failed to open file: … Permission denied` from the Step 4 `mpg123` command, or in the log | The music files can only be read by your login. Run the `chmod` command in [Step 3](#step-3-copy-the-music-to-the-pi) |
+| Another `Permission denied` from the Step 4 `mpg123` command, or in the log | The service user isn't allowed to use the sound yet. Run `sudo bash /opt/measure-station-db/deploy/install.sh` again, then restart the service |
 | `No music to play in /srv/music` in the log | No file names fit the pattern. Run the check in [Step 4](#step-4-check-the-music) |
 | `Can't read the music folder` in the log | `/srv/music` is missing: Step 3 |
 | `Can't play … (…); trying again every 10 s` in the log | The track couldn't be played; the message in brackets says why. If the TV was off or in standby, this is expected: it carries on by itself (`Playing again` in the log). If it repeats with the TV on, send the developer the log. A broken MP3 is skipped after 3 tries |

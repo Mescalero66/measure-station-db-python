@@ -391,6 +391,7 @@ def test_check_lists_each_hour_and_the_ignored_files(monkeypatch, tmp_path, caps
     folder = make_music(tmp_path / "music", hours=[0, 13], weathers=["Sunny", "Rain", "Fog"])
     (folder / "theme.mp3").write_bytes(b"")
     monkeypatch.setattr(sysconfig, "MUSIC_DIR", str(folder))
+    monkeypatch.setattr(sysconfig, "MUSIC_WEATHER_CHANCES", {"Sunny": 60, "Rain": 25, "Snow": 15})
     assert music.check() == 0
     out = capsys.readouterr().out
     assert "Chances: Sunny 60%, Rain 25%, Snow 15%" in out
